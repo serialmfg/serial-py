@@ -63,7 +63,6 @@ print(response.status_code, response.text)
 # Classes
 
 ## **Serial**
-***
 
 A class representing the Serial.io API connection.
 
@@ -100,7 +99,6 @@ Serial(api_key, station_id=None, base_url=BASE_URL)
 
 
 ## **Identifier**
-***
 
 A class representing the identifier object.
 
@@ -119,7 +117,6 @@ Identifier(identifier, component, part_number=None, metadata=None)
 
 
 ## **Process**
-***
 
 A class representing the process data to be uploaded to the API.
 
