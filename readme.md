@@ -25,7 +25,7 @@ This project requires the following dependencies:
 
 # Usage
 
-1. Get API key from [documenntation page](https://api.serial.io/docs/none/#authentication)
+1. Get API key from [documentation page](https://api.serial.io/docs/none/#authentication)
 
 2. Generate a station ID from process builder in the serial web app. 
 ![Generate Station Id](https://xblmulqojemwvkwbkajj.supabase.co/storage/v1/object/public/serial-assets-public/generate_station_id.png)
