@@ -14,7 +14,7 @@ This module provides a simple Python interface to interact with the Serial API. 
    ```
 3. Install the required dependencies using pip:
    ```
-   pip install -r requirements.txt`
+   pip install -r requirements.txt
    ```
 
 # Dependencies
