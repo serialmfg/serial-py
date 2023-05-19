@@ -64,7 +64,6 @@ class Serial:
             "identifier": identifier_object.identifier,
             "component": identifier_object.component,
             "part_number": identifier_object.part_number,
-            "metadata": identifier_object.metadata
         }
         response = requests.post(endpoint, headers=headers, json=payload)
         return response
