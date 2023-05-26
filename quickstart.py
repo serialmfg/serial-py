@@ -6,6 +6,7 @@ STATION_ID = None # or "<YOUR_STATION_ID>" # (Station ID is optional)
 # 1) Setup
 serial = Serial(api_key=API_KEY, station_id=STATION_ID)
 response = serial.check_connection()
+
 print(response.status_code, response.text)
 
 # 2) Initialize New Serial Number (Optional)
