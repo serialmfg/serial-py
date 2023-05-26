@@ -28,7 +28,7 @@ class Serial:
         """
         self.station_id = station_id
 
-    def upload_process_data(self, process, station_id=None):
+    def upload_process_data(self, process):
         """
         Uploads process data to the server.
 
@@ -39,15 +39,9 @@ class Serial:
         - A requests.Response object representing the server's response.
         """
 
-        if (station_id == None): 
-            station_id = self.station_id
-        
-        if (station_id == None): 
-            raise ValueError("station_id must not be None")
-
         endpoint = self.base_url + "/process-data"
         headers = {"Authorization": f"Bearer {self.api_key}"}
-        payload = process.build_payload(station_id=station_id)
+        payload = process.build_payload(station_id=self.station_id)
         response = requests.post(endpoint, headers=headers, files=payload)
         return response
     

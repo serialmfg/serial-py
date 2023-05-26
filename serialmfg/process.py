@@ -5,13 +5,14 @@ class Process:
     """
     A class representing the process data to be uploaded to the API.
     """
-    def __init__(self, identifier):
+    def __init__(self, identifier, process_id):
         """
         Constructor for the ProcessData class.
         
         Args:
             identifier (str): The identifier for the process data.
         """
+        self.process_id = process_id
         self.links = []
         self.parameters = []
         self.images = []
@@ -111,6 +112,7 @@ class Process:
         """
         serial_payload = {
             "identifier": self.identifier,
+            "process_id": self.process_id,
             "station_id": station_id,
             "links": self.links,
             "parameters": self.parameters,
