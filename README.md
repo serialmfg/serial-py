@@ -14,6 +14,7 @@ pip install serialmfg
 ```
 
 # Dependencies
+
 This project requires the following dependencies:
 - requests
 - json
