@@ -1,5 +1,6 @@
 import json
 import os
+import mimetypes
 
 class Process:
     """
@@ -42,18 +43,19 @@ class Process:
             value (float): The value of the parameter.
             unit (str): The unit of measurement for the parameter.
         """
+
         # set data_type to INTEGER, NUMBER, STRING based on the type of value:
         data_type_py = type(value)
 
-        if data_type_py == int:
-            data_type = ("INTEGER")
-        elif data_type_py == float:
-            data_type = ("NUMBER")
+        if data_type_py in [int, float]:
+            data_type = "NUMBER" if data_type_py == float else "INTEGER"
         elif data_type_py == str:
-            data_type = ("STRING")
+            data_type = "STRING"
+            if usl is not None or lsl is not None:
+                raise ValueError("usl and lsl can only be used if value is an integer or float")
         else:
             raise ValueError("data_type must be 'INTEGER', 'NUMBER', or 'STRING'")
-            
+
         self.parameters.append({
             "key_name": key_name,
             "data_type": data_type,
@@ -74,10 +76,12 @@ class Process:
         with open(path, 'rb') as file:
             image_bytes = file.read()
             file_name = os.path.basename(file.name)
+            mime_type, _ = mimetypes.guess_type(file_name)
             self.images.append({
                 "key_name": key_name,
                 "file_name": file_name,
-                "bytes": image_bytes
+                "bytes": image_bytes,
+                "mime_type": mime_type
             })
 
     def add_file(self, key_name, path):
@@ -91,10 +95,12 @@ class Process:
         with open(path, 'rb') as file:
             file_bytes = file.read()
             file_name = os.path.basename(file.name)
+            mime_type, _ = mimetypes.guess_type(file_name)
             self.files.append({
                 "key_name": key_name,
                 "file_name": file_name,
-                "bytes": file_bytes
+                "bytes": file_bytes,
+                "mime_type": mime_type
             })
 
     def set_pass_fail(self, is_pass):
@@ -138,9 +144,15 @@ class Process:
         }
         
         for image in self.images:
-            payload[image["file_name"]] = (image["file_name"], image["bytes"], "image/jpg")
+            mime_type = image["mime_type"]
+            if mime_type is None:
+                raise ValueError(f"Could not determine MIME type for image: {image['file_name']}")
+            payload[image["file_name"]] = (image["file_name"], image["bytes"], mime_type)
 
         for file in self.files:
-            payload[file["file_name"]] = (file["file_name"], file["bytes"], "text/csv")
+            mime_type = file["mime_type"]
+            if mime_type is None:
+                raise ValueError(f"Could not determine MIME type for file: {file['file_name']}")
+            payload[file["file_name"]] = (file["file_name"], file["bytes"], mime_type)
 
         return payload
