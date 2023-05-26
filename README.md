@@ -8,6 +8,11 @@ This module provides a simple Python interface to interact with the Serial API. 
    ```
    git clone https://https://github.com/serialmfg/serial-py.git
    ```
+   or 
+   ```
+   pip install serialmfg
+   ```
+
 2. Navigate to the project directory:
    ```
    cd serial-py
