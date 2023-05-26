@@ -5,13 +5,13 @@ This module provides a simple Python interface to interact with the Serial API. 
 # Installation
 
 Clone the repository from GitHub or install via pip:
-   ```
-   git clone https://https://github.com/serialmfg/serial-py.git
-   ```
+```
+git clone https://https://github.com/serialmfg/serial-py.git
+```
 or 
-   ```
-   pip install serialmfg
-   ```
+```
+pip install serialmfg
+```
 
 # Dependencies
 This project requires the following dependencies:
