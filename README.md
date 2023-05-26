@@ -4,20 +4,17 @@ This module provides a simple Python interface to interact with the Serial API. 
 
 # Installation
 
-1. Clone the repository from GitHub:
-   ```
-   git clone https://https://github.com/serialmfg/serial-py.git
-   ```
-2. Navigate to the project directory:
-   ```
-   cd serial-py
-   ```
-3. Install the required dependencies using pip:
-   ```
-   pip install -r requirements.txt
-   ```
+Clone the repository from GitHub or install via pip:
+```
+git clone https://https://github.com/serialmfg/serial-py.git
+```
+or 
+```
+pip install serialmfg
+```
 
 # Dependencies
+
 This project requires the following dependencies:
 - requests
 - json
@@ -28,18 +25,19 @@ This project requires the following dependencies:
 1. Get API key from [documentation page](https://api.serial.io/docs/none/#authentication)
 
 2. Generate a station ID from process builder in the serial web app. 
-![Generate Station Id](https://xblmulqojemwvkwbkajj.supabase.co/storage/v1/object/public/serial-assets-public/generate_station_id.png)
+![Generate Station Id](https://xblmulqojemwvkwbkajj.supabase.co/storage/v1/object/public/serial-assets-public/generate_process_id.png)
 
 3. Implement python script: 
 ```python
 from serialmfg import *
 
 API_KEY = "<YOUR_API_KEY>"
-STATION_ID = "<YOUR_STATION_ID>"
+STATION_ID = None # or "<YOUR_STATION_ID>" # (Station ID is optional)
 
 # 1) Setup
-serial = Serial(api_key=API_KEY)
+serial = Serial(api_key=API_KEY, station_id=STATION_ID)
 response = serial.check_connection()
+
 print(response.status_code, response.text)
 
 # 2) Initialize New Serial Number (Optional)
@@ -49,13 +47,13 @@ response = serial.initialize_identifier(my_identifier)
 print(response.status_code, response.text)
 
 # 3) Add Data
-my_process = Process(identifier="<your_sn_or_lot_code>")
+my_process = Process(identifier="<your_sn_or_lot_code>", process_id="<your_process_id>")
 my_process.add_parameter(key_name="<your_key_name>", value=1234, unit="<your_unit>")
 my_process.add_image(key_name="<your_key_name>", path="<your_file_path>")
 my_process.add_file(key_name="<your_key_name>", path="<your_file_path>")
 
 # 4) Upload
-response = serial.upload_process_data(my_process, station_id=STATION_ID)
+response = serial.upload_process_data(my_process)
 
 print(response.status_code, response.text)
 ```
@@ -83,11 +81,10 @@ Serial(api_key, station_id=None, base_url=BASE_URL)
     | --- | --- | --- | --- |
     | `station_id` | str | The ID of the station. | Yes |
 
-  - `upload_process_data(process, station_id=None)`: Uploads process data to the server.
+  - `upload_process_data(process)`: Uploads process data to the server.
     | Parameter | Type | Description | Required |
     | --- | --- | --- | --- |
     | `process` | Process | A `Process` object containing the data to be uploaded. | Yes |
-    | `station_id` | str | The ID of the station. | No |
 
   - `initialize_identifier(identifier_object)`: Initializes the identifier on the server.
     | Parameter | Type | Description | Required |
@@ -103,7 +100,7 @@ Serial(api_key, station_id=None, base_url=BASE_URL)
 A class representing the identifier object.
 
 ```python
-Identifier(identifier, component, part_number=None, metadata=None)
+Identifier(identifier, component, part_number=None)
 ```
 
 ### Constructor Parameters
@@ -112,7 +109,6 @@ Identifier(identifier, component, part_number=None, metadata=None)
 | `identifier` | str | The identifier for the object. | Yes |
 | `component` | str | The component for the object. | Yes |
 | `part_number` | str | The part number for the object. | No |
-| `metadata` | dict | The metadata for the object. | No |
 
 
 
