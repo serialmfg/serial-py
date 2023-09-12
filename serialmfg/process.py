@@ -20,6 +20,10 @@ class Process:
         self.files = []
         self.is_pass = None
         self.identifier = identifier
+        warn('''
+        The "Process" object is being deprecated and will be removed in future releases.
+        Please begin migrating to the new interface provided from `from serialmfg import serial`.
+        ''')
 
     def add_link(self, identifier):
         """

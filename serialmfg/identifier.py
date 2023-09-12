@@ -1,3 +1,4 @@
+from warnings import warn 
 class Identifier: 
     def __init__(self, identifier, component, part_number=None):
         """
@@ -14,3 +15,8 @@ class Identifier:
         self.identifier = identifier
         self.component = component
         self.part_number = part_number
+        warn('''
+        The "Identifier" object is being deprecated and will be removed in future releases.
+        Please begin migrating to the new interface provided from `from serialmfg import serial`.
+        ''')
+

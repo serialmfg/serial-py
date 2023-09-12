@@ -17,6 +17,10 @@ class Serial:
         self.api_key = api_key
         self.station_id = station_id
         self.base_url = base_url
+        warn('''
+        The "Serial" object is being deprecated and will be removed in future releases.
+        Please begin migrating to the new interface provided from `from serialmfg import serial`.
+        ''')
 
 
     def set_station_id(self, station_id):
