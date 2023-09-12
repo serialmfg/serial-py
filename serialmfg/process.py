@@ -22,7 +22,7 @@ class Process:
         self.identifier = identifier
         warn('''
         The "Process" object is being deprecated and will be removed in future releases.
-        Please begin migrating to the new interface provided from `from serialmfg import serial`.
+        Please begin migrating to the new interface provided from `from serialmfg import client`.
         ''')
 
     def add_link(self, identifier):

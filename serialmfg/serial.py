@@ -2,6 +2,7 @@ import requests
 
 BASE_URL = "https://api.serial.io"
 
+
 class Serial:
     def __init__(self, api_key, station_id=None, base_url=BASE_URL):
         """
@@ -19,7 +20,7 @@ class Serial:
         self.base_url = base_url
         warn('''
         The "Serial" object is being deprecated and will be removed in future releases.
-        Please begin migrating to the new interface provided from `from serialmfg import serial`.
+        Please begin migrating to the new interface provided from `from serialmfg import client`.
         ''')
 
 
