@@ -18,6 +18,8 @@ class ProcessEntry:
         self.component_instance = component_instance 
         self.start_timestamp = datetime.now()
         self.operator_pin = None 
+        # Implement setting of process entry id
+        self.id = None
 
     def add_text(self, dataset_name, value, expected_value=None):
         """
