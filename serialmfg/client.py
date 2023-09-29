@@ -46,6 +46,7 @@ class Client:
         self._log(f"GET request to {endpoint} with params {params}")
         response = requests.get(f"{self.base_url}{endpoint}", params=params, headers={'Authorization': f'Bearer {self.api_key}'})
         response.raise_for_status()
+        print(response.url)
         return response.json()
 
     def _post(self, endpoint, data=None):

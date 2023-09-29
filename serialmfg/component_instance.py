@@ -24,9 +24,9 @@ class ComponentInstance:
         try:
             self.component_instance = self._get_component_instance(identifier);
         except requests.exceptions.HTTPError as http_err:
-            print(f"Component with {identifier} not found, {'Creating...' if self.client.allow_component_instance_creation else 'Please create the component in Serial'}")
+            print(f"Component with identifier {identifier} not found, {'Creating...' if self.client.allow_component_instance_creation else 'Please create the component in Serial'}")
         if self.client.allow_component_instance_creation and not self.component_instance:
-            self.component_instance = _create_component_instance(identifier, component_name)
+            self.component_instance = self._create_component_instance(identifier, component_name)
 
     def _get_component_instance(self, identifier):
         """
@@ -65,12 +65,12 @@ class ComponentInstance:
                 }
         component_id = self.client.make_api_request("/components",
                                                      "GET",
-                                                     params=component_name_params)
+                                                     params=component_name_params)[0]["id"]
         data = {
                 "component_id": component_id,
                 "identifier": identifier,
                 }
-        return self.client.make_api_request(f"/components/instances/{identifier}"
+        return self.client.make_api_request(f"/components/instances"
                                              , "PUT", data=data) 
     
     def add_link(self, link_name, child_identifier, break_prior_links=False, process_entry=None):
@@ -110,9 +110,9 @@ class ComponentInstance:
         else:
             process_entry_id = self.process_entry.id
         data = {
-                "parent_component_instance_id": self.identifier,
+                "parent_component_instance_id": self.component_instance["id"],
                 "child_component_instance_id": child_component_instance["id"],
-                "dataset_id": link_dataset["id"],
+                "dataset_id": link_dataset["dataset"]["id"],
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
                 }
