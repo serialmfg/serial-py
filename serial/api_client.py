@@ -16,11 +16,13 @@ class APIClient:
         self._api_key = api_key 
         self._base_url = base_url 
 
-    def make_api_request(self, endpoint, method, params=None, data=None):
+    def make_api_request(self, endpoint, method, params=None, data=None, files=None):
         if method == "GET":
             response = self._get(endpoint, params)
-        elif method == "POST":
-            response = self._post(endpoint, data)
+        elif method == "POST" and not files:
+            response = self._post(endpoint, data=data)
+        elif method == "POST" and files:
+            response = self._post_files(endpoint, files=files)
         elif method == "PUT":
             response = self._put(endpoint, data)
         elif method == "PATCH":
@@ -39,7 +41,7 @@ class APIClient:
     def _get(self, endpoint, params=None):
         self._log(f"GET request to {endpoint} with params {params}")
         response = requests.get(f"{self._base_url}{endpoint}", params=params, headers={'Authorization': f'Bearer {self._api_key}'})
-        print(self._api_key)
+        print(response.text)
         response.raise_for_status()
         return response.json()
 
@@ -49,9 +51,16 @@ class APIClient:
         response.raise_for_status()
         return response.json()
 
+    def _post_files(self, endpoint, files):
+        self._log(f"POST request to {endpoint} with file") 
+        response = requests.post(f"{self._base_url}{endpoint}", files=files, headers={'Authorization': f'Bearer {self._api_key}'})
+        response.raise_for_status()
+        return response.json()
+
     def _put(self, endpoint, data=None):
         self._log(f"PUT request to {endpoint} with data {data}")
         response = requests.put(f"{self._base_url}{endpoint}", json=data, headers={'Authorization': f'Bearer {self._api_key}'})
+        print(response.text)
         response.raise_for_status()
         return response.json()
 

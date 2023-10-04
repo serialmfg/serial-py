@@ -1,11 +1,12 @@
-import requests
 import serial
 from ..api_client import APIClient
+from .component_instance_link import ComponentInstanceLink
 
 class ComponentInstance:
     def __init__(self, component_instance_data):
         self.client = APIClient(serial.api_key, serial.base_url)
         self.data = component_instance_data
+        self.links = [] 
 
     def add_link(self, link_name, child_identifier, break_prior_links=False, process_entry=None):
         """
@@ -44,15 +45,15 @@ class ComponentInstance:
         else:
             process_entry_id = self.process_entry.id
         data = {
-                "parent_component_instance_id": self.component_instance["id"],
+                "parent_component_instance_id": self.data["id"],
                 "child_component_instance_id": child_component_instance["id"],
                 "dataset_id": link_dataset["dataset"]["id"],
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
                 }
-        return self.client.make_api_request("/components/instances/links",
-                                            "PUT",
-                                            data=data) 
+        self.links.append(ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)))
+        return self.links[-1]
+
 class ComponentInstances:
     def __init__(self):
         pass
@@ -103,7 +104,9 @@ class ComponentInstances:
                 }
         return ComponentInstance(client.make_api_request(f"/components/instances", "PUT", data=data)) 
 
-    def list(self, identifier):
-        pass
-
-
+    @staticmethod
+    def list(query_params):
+        client = APIClient(serial.api_key, serial.base_url)
+        instances = client.make_api_request("/components/instances", "GET", params=query_params)
+        instance_object_list = [ComponentInstance(instance) for instance in instances]
+        return instance_object_list 
