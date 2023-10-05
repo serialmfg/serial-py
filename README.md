@@ -1,6 +1,9 @@
 # Overview
 
-This module provides a simple Python interface to interact with the Serial API. It allows you to easily perform common operations such as uploading process data, initializing identifiers, and checking the server connection. The latest version of the library can be downloaded [here](https://github.com/serialmfg/serial-py)
+This module provides a partial Python SDK for interacting with Serial's API. 
+If you need to perform actions not provided in the SDK, please reference the [API documentation](https://docs.serial.io/api-reference).
+If neither the API nor the library provides you with the necessary tools, please contact [Serial Support](mailto:support@serial.io).
+The latest version of the library can be downloaded [here](https://github.com/serialmfg/serial-py).
 
 # Installation
 
@@ -17,143 +20,45 @@ pip install serialmfg
 
 This project requires the following dependencies:
 - requests
-- json
-- os
 
-# Usage
+# Example Usage
 
-1. Get API key from [documentation page](https://api.serial.io/docs/none/#authentication)
+1. Get an API key from your Serial account or admin. 
 
-2. Generate a station ID from process builder in the serial web app. 
+2. (Optionally) Generate a station ID from process builder in the serial web app. 
 ![Generate Station Id](https://xblmulqojemwvkwbkajj.supabase.co/storage/v1/object/public/serial-assets-public/generate_process_id.png)
 
-3. Implement python script: 
+3. Implement your script: 
 ```python
-from serialmfg import *
+from serialmfg import serial
 
-API_KEY = "<YOUR_API_KEY>"
-STATION_ID = None # or "<YOUR_STATION_ID>" # (Station ID is optional)
+serial.api_key = 'my_api_key'
+serial.station_id = 'my_station_id' # optional
 
-# 1) Setup
-serial = Serial(api_key=API_KEY, station_id=STATION_ID)
-response = serial.check_connection()
+# ----------- Component Instances ----------- #
 
-print(response.status_code, response.text)
+# Getting a component instance
+my_component_instance_1 = serial.ComponentInstances.get(identifier="my_sn_or_lot_code_1") # Returns a ComponentInstance object
 
-# 2) Initialize New Serial Number (Optional)
-my_identifier = Identifier(identifier="<sn_or_lot_code>", component="<component_name>")
-response = serial.initialize_identifier(my_identifier)
+# Creating a component instance
+my_component_instance_2 = serial.ComponentInstances.create(identifier="my_sn_or_lot_code_2", component="my_component_name") # Returns a ComponentInstance object
 
-print(response.status_code, response.text)
+# Listing component instances
+defective_components = serial.ComponentInstances.list({"status"="DEFECTIVE", "component_id"="my_component_id"}) # Returns an array of ComponentInstance objects
 
-# 3) Add Data
-my_process = Process(identifier="<your_sn_or_lot_code>", process_id="<your_process_id>")
-my_process.add_parameter(key_name="<your_key_name>", value=1234, unit="<your_unit>")
-my_process.add_image(key_name="<your_key_name>", path="<your_file_path>")
-my_process.add_file(key_name="<your_key_name>", path="<your_file_path>")
+# Linking a component instance to a child
+my_component_instance_1.add_link(child=my_component_instance_2)
 
-# 4) Upload
-response = serial.upload_process_data(my_process)
+# ----------- Process Entries ----------- #
 
-print(response.status_code, response.text)
+# Creating a process entry
+my_process_entry = serial.ProcessEntries.create(process_id="my_process_id", component_instance=my_component_instance_1) # Returns a ProcessEntry object
+
+my_process_entry.add_text(dataset_name="Foo", value="bar")
+my_process_entry.add_number(dataset_name="Pi Approx", value=3.141, usl=3.1, lsl=3.2)
+my_process.add_boolean(dataset_name="PassFail Criteria", value=True, expected_value=False)
+my_process_entry.add_file(dataset_name="Oven Temperatures", path="/Users/me/Downloads/oven-temp.csv", file_name="oven-temp-todays-date.csv") # File name is optional to override the provided name
+my_process_entry.add_image(dataset_name="Cat Pictures", path="/Users/me/Documents/my-cat.png", file_name="jerry.png") # File name is optional to override the provided name
+my_process_entry.submit(cycle_time=42, is_pass=True, is_complete=True) # Notes how long the cycle took for the entry, whether it is passing and whether the process is complete
 ```
-
-# Classes
-
-## **Serial**
-
-A class representing the Serial.io API connection.
-
-```python
-Serial(api_key, station_id=None, base_url=BASE_URL)
-```
-
-### Constructor Parameters
-| Parameter | Type | Description | Required |
-| --- | --- | --- | --- |
-| `api_key` | str | The API key for authentication. | Yes |
-| `station_id` | str | The ID of the station. | No |
-| `base_url` | str | The base URL for the API. | No |
-
-### Methods
-  - `set_station_id(station_id)`: Sets the station ID for the Station object.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `station_id` | str | The ID of the station. | Yes |
-
-  - `upload_process_data(process)`: Uploads process data to the server.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `process` | Process | A `Process` object containing the data to be uploaded. | Yes |
-
-  - `initialize_identifier(identifier_object)`: Initializes the identifier on the server.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `identifier_object` | Identifier | An `Identifier` object. | Yes |
-
-  - `check_connection()`: Checks if the server is active and if the station ID is valid.
-
-
-
-## **Identifier**
-
-A class representing the identifier object.
-
-```python
-Identifier(identifier, component, part_number=None)
-```
-
-### Constructor Parameters
-| Parameter | Type | Description | Required |
-| --- | --- | --- | --- |
-| `identifier` | str | The identifier for the object. | Yes |
-| `component` | str | The component for the object. | Yes |
-| `part_number` | str | The part number for the object. | No |
-
-
-
-## **Process**
-
-A class representing the process data to be uploaded to the API.
-
-```python
-Process(identifier)
-```
-
-### Constructor Parameters
-| Parameter | Type | Description | Required |
-| --- | --- | --- | --- |
-| `identifier` | str | The identifier for the process data. | Yes |
-
-### Methods
-- `add_link(identifier)`: Adds a linked component to the process data.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `identifier` | str | The identifier for the linked component. | Yes |
-
-- `add_parameter(key_name, value, usl=None, lsl=None, unit=None)`: Adds a parameter to the process data.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `key_name` | str | The key name of the parameter. | Yes |
-    | `value` | float/str | The value of the parameter. | Yes |
-    | `usl` | float | The upper specification limit of the parameter. | No |
-    | `lsl` | float | The lower specification limit of the parameter. | No |
-    | `unit` | str | The unit of measurement for the parameter. | No |
-
-- `add_image(key_name, path)`: Adds an image to the process data.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `key_name` | str | The key name of the image. | Yes |
-    | `path` | str | The path to the image file. | Yes |
-
-- `add_file(key_name, path)`: Adds a file to the process data.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `key_name` | str | The key name of the file. | Yes |
-    | `path` | str | The path to the file. | Yes |
-
-- `set_pass_fail(is_pass)`: Overrides the pass / fail status of the process.
-    | Parameter | Type | Description | Required |
-    | --- | --- | --- | --- |
-    | `is_pass` | bool | The pass status of the process data. | Yes |
 
