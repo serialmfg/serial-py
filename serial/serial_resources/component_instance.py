@@ -6,7 +6,7 @@ class ComponentInstance:
     def __init__(self, component_instance_data):
         self.client = APIClient(serial.api_key, serial.base_url)
         self.data = component_instance_data
-        self.links = [] 
+        self.created_links = [] 
 
     def add_link(self, link_name, child_identifier, break_prior_links=False, process_entry=None):
         """
@@ -51,13 +51,10 @@ class ComponentInstance:
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
                 }
-        self.links.append(ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)))
-        return self.links[-1]
+        self.created_links.append(ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)))
+        return self.created_links[-1]
 
 class ComponentInstances:
-    def __init__(self):
-        pass
-
     @staticmethod
     def get(identifier):
         """

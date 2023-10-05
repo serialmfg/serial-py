@@ -1,4 +1,8 @@
+"""
+DEPRECATED, WILL BE REMOVED IN FUTURE RELEASE
+"""
 import requests
+from warnings import warn
 
 BASE_URL = "https://api.serial.io"
 

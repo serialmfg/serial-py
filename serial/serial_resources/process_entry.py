@@ -59,7 +59,7 @@ class ProcessEntry:
             data["lsl"] = lsl
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
-    def add_file(self, dataset_name, path, bucket_type, file_name=None):
+    def add_file(self, dataset_name, path, file_name=None):
         """
         Add file data to a process entry
 
@@ -69,18 +69,30 @@ class ProcessEntry:
         """
         if serial.debug:
             pass
+        self._upload_file(dataset_name, path, file_name, "FILE")
+
+    def add_image(self, dataset_name, path, file_name=None):
+        """
+        Add image data to a process entry
+
+        Args: 
+        - dataset_name: User facing name of the dataset
+        - path: Path to the file on your file system
+        """
+        if serial.debug:
+            pass
+        self._upload_file(dataset_name, path, file_name, "IMAGE")
+    
+    def _upload_file(self, dataset_name, path, file_name, dataset_type):
         if not file_name:
             file_name = os.path.basename(path)
         # if in the future we need to do a better guess, we can use python-magic to determine the mimetype
         files = {'file': (file_name, open(path, 'rb'), mimetypes.guess_type(path))} 
         storage_object = self.client.make_api_request("/files", "POST", files=files)
-        dataset_type = "FILE"
-        if bucket_type == "images":
-            dataset_type = "IMAGE"
         dataset = serial.Datasets.get(dataset_name, dataset_type, self.process_id)
-        data = {"type": "FILE", "dataset_id": dataset.dataset_id, "bucket_type": bucket_type, "file_id": storage_object["name"], "file_name": file_name}
+        data = {"type": dataset_type, "dataset_id": dataset.dataset_id, "file_id": storage_object["name"], "file_name": file_name}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
-    
+
     def add_boolean(self, dataset_name, value, expected_value):
         """
         Add boolean data to a process entry

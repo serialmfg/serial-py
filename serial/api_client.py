@@ -41,7 +41,6 @@ class APIClient:
     def _get(self, endpoint, params=None):
         self._log(f"GET request to {endpoint} with params {params}")
         response = requests.get(f"{self._base_url}{endpoint}", params=params, headers={'Authorization': f'Bearer {self._api_key}'})
-        print(response.text)
         response.raise_for_status()
         return response.json()
 
@@ -60,7 +59,6 @@ class APIClient:
     def _put(self, endpoint, data=None):
         self._log(f"PUT request to {endpoint} with data {data}")
         response = requests.put(f"{self._base_url}{endpoint}", json=data, headers={'Authorization': f'Bearer {self._api_key}'})
-        print(response.text)
         response.raise_for_status()
         return response.json()
 

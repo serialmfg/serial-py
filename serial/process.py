@@ -1,6 +1,10 @@
+"""
+DEPRECATED, WILL BE REMOVED IN FUTURE RELEASE
+"""
 import json
 import os
 import mimetypes
+from warnings import warn
 
 class Process:
     """
@@ -8,6 +12,7 @@ class Process:
     """
     def __init__(self, identifier, process_id):
         """
+        DEPRECATED, WILL BE REMOVED IN A FUTURE RELEASE
         Constructor for the ProcessData class.
         
         Args:

@@ -1,3 +1,6 @@
+"""
+DEPRECATED, WILL BE REMOVED IN FUTURE RELEASE
+"""
 from warnings import warn 
 class Identifier: 
     def __init__(self, identifier, component, part_number=None):
