@@ -41,8 +41,16 @@ class APIClient:
         else:
             print(f"{method} is not supported by the serial python library")
             return None
-        return response 
+        
+        if not response.ok:
+            self._error(response.text)
+            response.raise_for_status()
+            return None
+        return response.json()
     
+    def _error(self, message):
+        print(f"ERROR: {message}")
+
     def _log(self, message):
         if serial.debug:
             print(f"DEBUG: {message}")
@@ -50,36 +58,30 @@ class APIClient:
     def _get(self, endpoint, params=None):
         self._log(f"GET request to {endpoint} with params {params}")
         response = requests.get(f"{self._base_url}{endpoint}", params=params, headers={'Authorization': f'Bearer {self._api_key}'})
-        response.raise_for_status()
-        return response.json()
+        return response
 
     def _post(self, endpoint, data=None):
         self._log(f"POST request to {endpoint} with data {data}")
         response = requests.post(f"{self._base_url}{endpoint}", json=data, headers={'Authorization': f'Bearer {self._api_key}'})
-        response.raise_for_status()
-        return response.json()
+        return response
 
     def _post_files(self, endpoint, files):
         self._log(f"POST request to {endpoint} with file") 
         response = requests.post(f"{self._base_url}{endpoint}", files=files, headers={'Authorization': f'Bearer {self._api_key}'})
-        response.raise_for_status()
-        return response.json()
+        return response
 
     def _put(self, endpoint, data=None):
         self._log(f"PUT request to {endpoint} with data {data}")
         response = requests.put(f"{self._base_url}{endpoint}", json=data, headers={'Authorization': f'Bearer {self._api_key}'})
-        response.raise_for_status()
-        return response.json()
+        return response
 
     def _patch(self, endpoint, data=None):
         self._log(f"PATCH request to {endpoint} with data {data}")
         response = requests.patch(f"{self._base_url}{endpoint}", json=data, headers={'Authorization': f'Bearer {self._api_key}'})
-        response.raise_for_status()
-        return response.json()
+        return response
 
     def _delete(self, endpoint, data=None):
         self._log(f"DELETE request to {endpoint} with data {data}")
         response = requests.delete(f"{self._base_url}{endpoint}", json=data, headers={'Authorization': f'Bearer {self._api_key}'})
-        response.raise_for_status()
-        return response.json()
+        return response
 
