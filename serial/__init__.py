@@ -1,3 +1,15 @@
+"""serialmfg Module
+Exports 3 data classes (they are not initialized, and simply provide 
+users with ways to access underlying data structures)
+ComponentInstances
+ProcessEntries
+Datasets
+
+Exports 3 deprecated classes
+Serial (for managing connections)
+Identifier (for creating component instances)
+Process (for creating process entries)
+"""
 from .identifier import Identifier
 from .serial import Serial 
 from .process import Process

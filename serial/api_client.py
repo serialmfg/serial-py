@@ -1,7 +1,16 @@
 import requests
 import serial
 
+
 class APIClient:
+    """
+    A class to handle API requests to the Serial API
+    Attributes:
+    - api_key: The API key to use for requests
+    - base_url: The base url to use for requests
+    Methods:
+    - make_api_request: Makes an API request to the Serial API
+    """
     def __init__(self, api_key, base_url):
         """
         Initializes a new API Client
