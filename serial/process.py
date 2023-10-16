@@ -1,6 +1,10 @@
+"""
+DEPRECATED, WILL BE REMOVED IN FUTURE RELEASE
+"""
 import json
 import os
 import mimetypes
+from warnings import warn
 
 class Process:
     """
@@ -8,6 +12,7 @@ class Process:
     """
     def __init__(self, identifier, process_id):
         """
+        DEPRECATED, WILL BE REMOVED IN A FUTURE RELEASE
         Constructor for the ProcessData class.
         
         Args:
@@ -20,6 +25,10 @@ class Process:
         self.files = []
         self.is_pass = None
         self.identifier = identifier
+        warn('''
+        The "Process" object is being deprecated and will be removed in future releases.
+        Please begin migrating to the new interface provided from `from serialmfg import client`.
+        ''')
 
     def add_link(self, identifier):
         """

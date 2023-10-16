@@ -63,3 +63,6 @@ target/
 test_assets/*
 quickstart_test.py
 .DS_Store
+
+# Testing
+*.env
