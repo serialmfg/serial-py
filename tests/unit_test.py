@@ -3,7 +3,7 @@ from dotenv import find_dotenv, load_dotenv
 import os
 sys.path.append('../serial')
 import time
-import serial
+import serialmfg as serial
 from .constants import NEW_IDENTIFIER_SAMPLE_DATA, SAMPLE_NEW_LINK, EXISTING_IDENTIFIER_DATA, SAMPLE_TEXT_DATA, SAMPLE_NUMBER_DATA, SAMPLE_IMAGE_DATA, SAMPLE_BOOLEAN_DATA, SAMPLE_ENTRY_DATA, SAMPLE_FILE_DATA
 
 load_dotenv(find_dotenv()) # relative path to .env file

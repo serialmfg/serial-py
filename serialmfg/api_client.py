@@ -1,5 +1,5 @@
 import requests
-import serial
+import serialmfg as serial
 
 
 class APIClient:

@@ -1,7 +1,7 @@
 """
 This file contains the Dataset class and the Datasets class.
 """
-import serial
+import serialmfg as serial
 from ..api_client import APIClient
 
 class Datasets:

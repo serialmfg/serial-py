@@ -1,7 +1,7 @@
 """
 This file contains the ComponentInstance class, which represents a component instance
 """
-import serial
+import serialmfg as serial
 from ..api_client import APIClient
 from .component_instance_link import ComponentInstanceLink
 

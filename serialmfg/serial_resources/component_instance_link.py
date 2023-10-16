@@ -2,7 +2,7 @@
 This file contains the ComponentInstanceLink class, which is used to represent
 a component instance link
 """
-import serial
+import serialmfg as serial
 
 class ComponentInstanceLink:
     """

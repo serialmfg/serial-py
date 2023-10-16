@@ -1,7 +1,7 @@
 """
 This module contains the ProcessEntry class and ProcessEntries class.
 """
-import serial
+import serialmfg as serial
 import os
 import mimetypes
 from datetime import datetime
