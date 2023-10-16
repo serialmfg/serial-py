@@ -30,7 +30,7 @@ This project requires the following dependencies:
 
 3. Implement your script: 
 ```python
-from serialmfg import serial
+import serial
 
 serial.api_key = 'my_api_key'
 serial.station_id = 'my_station_id' # optional
