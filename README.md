@@ -41,7 +41,7 @@ serial.station_id = 'my_station_id' # optional
 my_component_instance_1 = serial.ComponentInstances.get(identifier="my_sn_or_lot_code_1") # Returns a ComponentInstance object
 
 # Creating a component instance
-my_component_instance_2 = serial.ComponentInstances.create(identifier="my_sn_or_lot_code_2", component="my_component_name") # Returns a ComponentInstance object
+my_component_instance_2 = serial.ComponentInstances.create(identifier="my_sn_or_lot_code_2", component_name="my_component_name") # Returns a ComponentInstance object
 
 # Listing component instances
 defective_components = serial.ComponentInstances.list({"status"="DEFECTIVE", "component_id"="my_component_id"}) # Returns an array of ComponentInstance objects
@@ -56,7 +56,7 @@ my_process_entry = serial.ProcessEntries.create(process_id="my_process_id", comp
 
 my_process_entry.add_text(dataset_name="Foo", value="bar")
 my_process_entry.add_number(dataset_name="Pi Approx", value=3.141, usl=3.1, lsl=3.2)
-my_process.add_boolean(dataset_name="PassFail Criteria", value=True, expected_value=False)
+my_process_entry.add_boolean(dataset_name="PassFail Criteria", value=True, expected_value=False)
 my_process_entry.add_file(dataset_name="Oven Temperatures", path="/Users/me/Downloads/oven-temp.csv", file_name="oven-temp-todays-date.csv") # File name is optional to override the provided name
 my_process_entry.add_image(dataset_name="Cat Pictures", path="/Users/me/Documents/my-cat.png", file_name="jerry.png") # File name is optional to override the provided name
 my_process_entry.submit(cycle_time=42, is_pass=True, is_complete=True) # Notes how long the cycle took for the entry, whether it is passing and whether the process is complete
