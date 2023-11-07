@@ -28,6 +28,28 @@ class Datasets:
         if serial.debug:
             print(f"Getting dataset with type {data_type}: {name}")
         return Dataset(client.make_api_request("/datasets", "GET", params=query_params)[0])
+    
+    @staticmethod
+    def create(name, data_type, process_id, options=None):
+        """
+        Creates a dataset, if it does not exist
+        
+        Args:
+        - name: Dataset name
+        - data_type: Dataset data type
+        - process_id: Process ID
+        - extra_params?: Extra parameters. Valid options are: usl, lsl, & unit
+
+        Returns:
+        - A dataset Python object 
+        """
+        client = APIClient(serial.api_key, serial.base_url)
+        query_params = {"name": name, "type": data_type, "process_id": process_id}
+        if extra_params:
+            query_params.update(extra_params)
+        if serial.debug:
+            print(f"Creating dataset with type {data_type}: {name}")
+        return Dataset(client.make_api_request("/datasets", "PUT", data=query_params))
 
 class Dataset:
     """
