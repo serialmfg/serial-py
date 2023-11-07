@@ -21,3 +21,4 @@ api_key = None
 base_url = "https://api.serial.io"
 station_id = None
 debug = False
+allow_automatic_dataset_creation = True 
