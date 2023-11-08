@@ -30,7 +30,7 @@ class Datasets:
         return Dataset(client.make_api_request("/datasets", "GET", params=query_params)[0])
     
     @staticmethod
-    def create(name, data_type, process_id, options=None):
+    def create(name, data_type, process_id, extra_params=None):
         """
         Creates a dataset, if it does not exist
         

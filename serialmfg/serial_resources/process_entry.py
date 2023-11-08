@@ -290,7 +290,7 @@ class ProcessEntries:
         if not component_instance_id and not component_instance_identifier:
             raise Exception("ComponentInstance id cannot be null, please pass in a valid one")
         if component_instance_identifier:
-            component_instance_id = ComponentInstance.get(component_instance_identifier).data["id"]
+            component_instance_id = ComponentInstances.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
