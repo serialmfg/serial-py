@@ -107,9 +107,23 @@ SAMPLE_ENTRY_DATA = {
             'operator_id': None,
             'override_user_id': None,
             'process_id': '9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8',
-            'process_revision': None,
+            'process_revision': 2,
             'station_id': None,
             'timestamp': '2023-10-06T21:51:54.549684+00:00',
             'unique_identifier_id': '95db48e1-99ad-4e35-a86b-fa0beca5f313',
-            'upload_error': False
+            'upload_error': False,
+            'created_at': '2023-10-06T21:51:54.549684+00:00'
             }
+SAMPLE_data_key_DATA = {'child_component_id': None,
+            'company_id': '0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25',
+            'created_at': '2023-11-06T19:38:16.4146+00:00',
+            'data_type': 'PARAMETRIC_QUANTITATIVE',
+            'expected_value': None,
+            'id': '26444c59-0392-4b0c-a1fd-0d830ac7d6c4',
+            'lsl': -10.5,
+            'name': 'LSL Only',
+            'order': 1,
+            'process_id': '9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8',
+            'process_revision': 2,
+            'unit': '',
+            'usl': None}

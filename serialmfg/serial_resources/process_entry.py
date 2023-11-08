@@ -7,6 +7,8 @@ import mimetypes
 from datetime import datetime
 from ..api_client import APIClient 
 from .dataset import Datasets 
+from .component_instance import ComponentInstance
+from .component_instance_link import ComponentInstanceLink
 
 class ProcessEntry:
     """
@@ -45,11 +47,18 @@ class ProcessEntry:
         """
         if serial.debug:
             print(f"Adding text data: {dataset_name} with value: {value} and expected value: {expected_value}")
-        dataset = serial.Datasets.get(dataset_name, "PARAMETRIC_QUALITATIVE", self.process_id)
+        dataset = None
+        try:
+            dataset = serial.Datasets.get(dataset_name, "TEXT", self.process_id)
+        except Exception as e:
+            if serial.allow_automatic_dataset_creation:
+                dataset = serial.Datasets.create(dataset_name, "TEXT", self.process_id)
+            else:
+                raise e
         data = {"type": "TEXT", "dataset_id": dataset.dataset_id, "value": value}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
-    def add_number(self, dataset_name, value, usl=None, lsl=None):
+    def add_number(self, dataset_name, value, usl=None, lsl=None, unit=None):
         """
         Add numerical data to a process entry
 
@@ -58,13 +67,29 @@ class ProcessEntry:
         - value: The value to be submitted
         - usl?: Optional argument to override the dataset's upper spec limit
         - lsl?: Optional argument to override the dataset's lower spec limit
+        - unit?: Optional argument to create the dataset's unit
         
         Returns:
         - API response for adding numerical data
         """
         if serial.debug:
             print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
-        dataset = serial.Datasets.get(dataset_name, "PARAMETRIC_QUANTITATIVE", self.process_id)
+        dataset = None
+        try:
+            dataset = serial.Datasets.get(dataset_name, "NUMERICAL", self.process_id)
+        except Exception as e:
+            extra_params = {}
+            if usl:
+                extra_params["usl"] = usl
+            if lsl:
+                extra_params["lsl"] = lsl
+            if unit:
+                extra_params["unit"] = unit
+
+            if serial.allow_automatic_dataset_creation:
+                dataset = serial.Datasets.create(dataset_name, "NUMERICAL", self.process_id, extra_params=extra_params)
+            else:
+                raise e
         data = {"type": "NUMERICAL", "dataset_id": dataset.dataset_id, "value": value}
         if usl:
             data["usl"] = usl
@@ -119,7 +144,14 @@ class ProcessEntry:
         # if in the future we need to do a better guess, we can use python-magic to determine the mimetype
         files = {'file': (file_name, open(path, 'rb'), mimetypes.guess_type(path))} 
         storage_object = self.client.make_api_request("/files", "POST", files=files)
-        dataset = serial.Datasets.get(dataset_name, dataset_type, self.process_id)
+        dataset = None
+        try:
+            dataset = serial.Datasets.get(dataset_name, dataset_type, self.process_id)
+        except Exception as e:
+            if serial.allow_automatic_dataset_creation:
+                dataset = serial.Datasets.create(dataset_name, dataset_type, self.process_id)
+            else:
+                raise e
         data = {"type": dataset_type, "dataset_id": dataset.dataset_id, "file_id": storage_object["name"], "file_name": file_name}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
@@ -136,10 +168,64 @@ class ProcessEntry:
         Returns:
         - API response for adding boolean data
         """
-        dataset = serial.Datasets.get(dataset_name, "CHECKBOX", self.process_id)
+        dataset = None
+        try:
+            dataset = serial.Datasets.get(dataset_name, "BOOLEAN", self.process_id)
+        except Exception as e:
+            if serial.allow_automatic_dataset_creation:
+                dataset = serial.Datasets.create(dataset_name, "BOOLEAN", self.process_id)
+            else:
+                raise e
         data = {"type": "BOOLEAN", "dataset_id": dataset.dataset_id, "value": value, "expected_value": expected_value}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
     
+    def add_link(self, link_name, child_identifier, parent_identifier, break_prior_links=False):
+        """
+        Creates a link between a parent and a child at this specific
+        process_entry
+
+        Args:
+        - link_name: User facing name for the link
+        - child_identifier: Identifier for the child component instance to be linked
+        - parent_identifier: Identifier for the parent component instance to be linked
+        - break_prior_links?: Boolean for whether to break prior links
+
+        Returns:
+        - New component instance link
+        """
+        if serial.debug:
+            print(f"Adding link: {link_name} with child identifier: {child_identifier}")
+        child_component_instance_params = {
+                "identifier": child_identifier
+                }
+        parent_component_instance_params = {
+                "identifier": parent_identifier
+                }
+        link_params = {
+                "name": link_name
+                }
+        child_component_instance = self.client.make_api_request("/components/instances",
+                                                                "GET",
+                                                                params=child_component_instance_params)[0]
+        parent_component_instance = self.client.make_api_request("/components/instances",
+                                                                "GET",
+                                                                params=parent_component_instance_params)[0]
+
+        link_dataset = self.client.make_api_request("/datasets",
+                                                    "GET",
+                                                    params=link_params)[0]
+        process_entry_id = self.id
+        data = {
+                "parent_component_instance_id": parent_component_instance["id"],
+                "child_component_instance_id": child_component_instance["id"],
+                "dataset_id": link_dataset["dataset"]["id"],
+                "process_entry_id": process_entry_id,
+                "break_prior_links": break_prior_links,
+                }
+        new_link = ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)) 
+        self.created_links.append(new_link)
+        return new_link
+
     def submit(self, cycle_time=None, is_pass=None, is_complete=None):
         """
         Mark a process entry as completed
@@ -185,7 +271,7 @@ class ProcessEntries:
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None):
         """
         Creates a process entry
 
@@ -193,6 +279,7 @@ class ProcessEntries:
         - process_id: Process id 
         - component_instance?: Component instance object 
         - component_instance_id?: Component instance id (is overriden by component_instance)
+        - component_instance_identifier?: Component instance identifier (is overriden by component_instance & component_instance_id)
 
         Returns:
         - A process entry Python object
@@ -200,8 +287,10 @@ class ProcessEntries:
         client = APIClient(serial.api_key, serial.base_url)
         if component_instance:
             component_instance_id = component_instance.data["id"]
-        if not component_instance_id:
+        if not component_instance_id and not component_instance_identifier:
             raise Exception("ComponentInstance id cannot be null, please pass in a valid one")
+        if component_instance_identifier:
+            component_instance_id = ComponentInstance.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)

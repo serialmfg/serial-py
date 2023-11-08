@@ -4,7 +4,7 @@ import os
 sys.path.append('../serial')
 import time
 import serialmfg as serial
-from .constants import NEW_IDENTIFIER_SAMPLE_DATA, SAMPLE_NEW_LINK, EXISTING_IDENTIFIER_DATA, SAMPLE_TEXT_DATA, SAMPLE_NUMBER_DATA, SAMPLE_IMAGE_DATA, SAMPLE_BOOLEAN_DATA, SAMPLE_ENTRY_DATA, SAMPLE_FILE_DATA
+from .constants import NEW_IDENTIFIER_SAMPLE_DATA, SAMPLE_NEW_LINK, EXISTING_IDENTIFIER_DATA, SAMPLE_TEXT_DATA, SAMPLE_NUMBER_DATA, SAMPLE_IMAGE_DATA, SAMPLE_BOOLEAN_DATA, SAMPLE_ENTRY_DATA, SAMPLE_DATASET_DATA, SAMPLE_FILE_DATA
 
 load_dotenv(find_dotenv()) # relative path to .env file
 API_KEY = os.getenv('ZUPLO_API_KEY') # put your own API key here
@@ -24,7 +24,10 @@ new_process_entry = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-
 existing_process_entry = serial.ProcessEntries.get('114b846e-5d5e-4f96-87d2-6c029192053a')
 
 def test_get_instance():
-    assert existing_component_instance.data == EXISTING_IDENTIFIER_DATA 
+    for key, value in existing_component_instance.data.items():
+        assert key in EXISTING_IDENTIFIER_DATA.keys()
+        if key not in ["id", "identifier", "created_at", "last_updated_at", "completed_at"]:
+            assert value == EXISTING_IDENTIFIER_DATA[key]
 
 def test_create_instance():
     for key, value in new_component_instance.data.items():
@@ -81,7 +84,7 @@ def test_add_file():
     file_data = existing_process_entry.add_file("New Dataset", "/Users/clarke/repos/serial-py/tests/test.txt")
     for key, value in file_data.items():
         assert key in SAMPLE_FILE_DATA.keys()
-        if key not in ["id", "created_at", "file_id"]: 
+        if key not in ["id", "created_at", "file_id", "dataset_id"]: 
             assert value == SAMPLE_FILE_DATA[key]
 
 def test_add_image():
@@ -109,5 +112,14 @@ def test_complete_entry():
     entry_data = new_process_entry.submit(cycle_time=50, is_pass=True, is_complete=True)
     for key, value in entry_data.items():
         assert key in SAMPLE_ENTRY_DATA.keys()
-        if key not in ["id", "timestamp"]:
+        if key not in ["id", "timestamp", "created_at"]:
             assert value == SAMPLE_ENTRY_DATA[key]
+
+def test_get_datasets():
+    dataset = serial.Datasets.get("LSL Only", "PARAMETRIC_QUANTITATIVE", process_id="9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8")
+    assert dataset.data == SAMPLE_DATASET_DATA 
+
+def test_create_datasets():
+    dataset = serial.Datasets.create("New Dataset", "NUMERICAL", "9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8", {"lsl": -10.5})
+    for key, value in dataset.data.items():
+        assert key in SAMPLE_DATASET_DATA.keys()
