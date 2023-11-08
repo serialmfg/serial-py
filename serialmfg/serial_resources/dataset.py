@@ -9,24 +9,21 @@ class Datasets:
     A class for dataset data methods
     """
     @staticmethod
-    def get(name, data_type, process_id=None):
+    def get(name, data_type):
         """
         Gets a dataset, if it exists
         
         Args:
         - name: Dataset name
         - data_type: Dataset data type
-        - process_id?: Process ID
 
         Returns:
         - A dataset Python object 
         """
         client = APIClient(serial.api_key, serial.base_url)
         query_params = {"name": name, "type": data_type}
-        if process_id:
-            query_params["process_id"] = process_id
         if serial.debug:
-            print(f"Getting dataset with type {data_type}: {name}")
+            print(f"Getting dataset {name} of type {data_type}")
         return Dataset(client.make_api_request("/datasets", "GET", params=query_params)[0])
     
     @staticmethod
@@ -66,6 +63,6 @@ class Dataset:
         """
         self.data = dataset_data
         self.name = dataset_data["dataset"]["name"]
-        self.id = dataset_data["id"]
+        self.id = dataset_data["dataset"]["id"]
         self.dataset_id = dataset_data["dataset"]["id"]
 

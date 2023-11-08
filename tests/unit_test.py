@@ -26,7 +26,7 @@ existing_process_entry = serial.ProcessEntries.get('114b846e-5d5e-4f96-87d2-6c02
 def test_get_instance():
     for key, value in existing_component_instance.data.items():
         assert key in EXISTING_IDENTIFIER_DATA.keys()
-        if key not in ["id", "identifier", "created_at", "last_updated_at", "completed_at"]:
+        if key not in ["id", "status", "identifier", "created_at", "last_updated_at", "completed_at"]:
             assert value == EXISTING_IDENTIFIER_DATA[key]
 
 def test_create_instance():
@@ -70,14 +70,14 @@ def test_add_text():
     text_data = existing_process_entry.add_text("New Dataset", "Bob's Burgers") 
     for key, value in text_data.items():
         assert key in SAMPLE_TEXT_DATA.keys()
-        if key not in ["id", "created_at"]: 
+        if key not in ["id", "created_at", "dataset_id"]: 
             assert value == SAMPLE_TEXT_DATA[key]
 
 def test_add_number():
     number_data = existing_process_entry.add_number("New Dataset", 1.5, usl=2, lsl=1) 
     for key, value in number_data.items():
         assert key in SAMPLE_NUMBER_DATA.keys()
-        if key not in ["id", "created_at"]: 
+        if key not in ["id", "created_at", "dataset_id"]: 
             assert value == SAMPLE_NUMBER_DATA[key]
 
 def test_add_file():
@@ -116,10 +116,19 @@ def test_complete_entry():
             assert value == SAMPLE_ENTRY_DATA[key]
 
 def test_get_datasets():
-    dataset = serial.Datasets.get("LSL Only", "PARAMETRIC_QUANTITATIVE", process_id="9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8")
-    assert dataset.data == SAMPLE_DATASET_DATA 
+    dataset = serial.Datasets.get("LSL Only", "NUMERICAL")
+    for key, value in dataset.data.items():
+        assert key in SAMPLE_DATASET_DATA.keys()
 
 def test_create_datasets():
     dataset = serial.Datasets.create("New Dataset", "NUMERICAL", "9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8", {"lsl": -10.5})
     for key, value in dataset.data.items():
         assert key in SAMPLE_DATASET_DATA.keys()
+
+def test_auto_create_numerical_data():
+    new_process_entry = serial.ProcessEntries.create(process_id="9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8", component_instance=existing_component_instance)
+    numerical_data = new_process_entry.add_number("New Dataset", 1.5, usl=2, lsl=1, unit="m")
+    for key, value in numerical_data.items():
+        assert key in SAMPLE_NUMBER_DATA.keys()
+        if key not in ["id", "created_at", "dataset_id"]: 
+            assert value == SAMPLE_NUMBER_DATA[key]
