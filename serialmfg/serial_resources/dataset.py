@@ -66,7 +66,7 @@ class Dataset:
         - A dataset Python object, which holds the api object at data, the dataset name at name, the dataset id at dataset_id and the (field) id at id
         """
         self.data = dataset_data
-        self.name = dataset_data["dataset"]["name"]
+        self.name = dataset_data["name"]
         self.id = dataset_data["id"]
-        self.dataset_id = dataset_data["dataset"]["id"]
+        self.dataset_id = dataset_data["id"]
 

@@ -209,7 +209,7 @@ class ProcessEntry:
         data = {
                 "parent_component_instance_id": parent_component_instance["id"],
                 "child_component_instance_id": child_component_instance["id"],
-                "dataset_id": link_dataset["dataset"]["id"],
+                "dataset_id": link_dataset["id"],
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
                 }
