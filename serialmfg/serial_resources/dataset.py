@@ -22,7 +22,7 @@ class Datasets:
         - A dataset Python object 
         """
         client = APIClient(serial.api_key, serial.base_url)
-        query_params = {"name": name, "data_type": data_type}
+        query_params = {"name": name, "type": data_type}
         if process_id:
             query_params["process_id"] = process_id
         if serial.debug:

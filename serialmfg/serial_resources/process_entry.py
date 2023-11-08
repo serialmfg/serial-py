@@ -76,7 +76,7 @@ class ProcessEntry:
             print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
         dataset = None
         try:
-            dataset = serial.Datasets.get(dataset_name, "PARAMETRIC_QUANTITATIVE", self.process_id)
+            dataset = serial.Datasets.get(dataset_name, "NUMERICAL", self.process_id)
         except Exception as e:
             extra_params = {}
             if usl:
@@ -170,7 +170,7 @@ class ProcessEntry:
         """
         dataset = None
         try:
-            dataset = serial.Datasets.get(dataset_name, "CHECKBOX", self.process_id)
+            dataset = serial.Datasets.get(dataset_name, "BOOLEAN", self.process_id)
         except Exception as e:
             if serial.allow_automatic_dataset_creation:
                 dataset = serial.Datasets.create(dataset_name, "BOOLEAN", self.process_id)
@@ -224,7 +224,6 @@ class ProcessEntry:
                 }
         new_link = ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)) 
         self.created_links.append(new_link)
-        print(new_link.data)
         return new_link
 
     def submit(self, cycle_time=None, is_pass=None, is_complete=None):
@@ -272,7 +271,7 @@ class ProcessEntries:
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None):
         """
         Creates a process entry
 
@@ -280,6 +279,7 @@ class ProcessEntries:
         - process_id: Process id 
         - component_instance?: Component instance object 
         - component_instance_id?: Component instance id (is overriden by component_instance)
+        - component_instance_identifier?: Component instance identifier (is overriden by component_instance & component_instance_id)
 
         Returns:
         - A process entry Python object
@@ -287,8 +287,10 @@ class ProcessEntries:
         client = APIClient(serial.api_key, serial.base_url)
         if component_instance:
             component_instance_id = component_instance.data["id"]
-        if not component_instance_id:
+        if not component_instance_id and not component_instance_identifier:
             raise Exception("ComponentInstance id cannot be null, please pass in a valid one")
+        if component_instance_identifier:
+            component_instance_id = ComponentInstance.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
