@@ -85,3 +85,13 @@ class Serial:
         }
         response = requests.post(endpoint, headers=headers, json=payload)
         return response
+
+    @getter
+    def station_id(self):
+        return self.station_id
+
+    @getter
+    def api_key(self):
+        return self.api_key
+
+
