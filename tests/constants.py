@@ -68,7 +68,7 @@ SAMPLE_NUMBER_DATA = {'created_at': '2023-10-06T21:29:33.685368+00:00',
                       'lsl': 1,
                       'process_entry_id': '114b846e-5d5e-4f96-87d2-6c029192053a',
                       'unique_identifier_id': '95db48e1-99ad-4e35-a86b-fa0beca5f313',
-                      'unit': 'ft',
+                      'unit': 'ft', 
                       'usl': 2,
                       'value': 1.5}
 SAMPLE_FILE_DATA = {'bucket_name': 'data-files',

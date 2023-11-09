@@ -1,7 +1,6 @@
 """
 This file contains the ComponentInstance class, which represents a component instance
 """
-import serialmfg as serial
 from ..api_client import APIClient
 from .component_instance_link import ComponentInstanceLink
 
@@ -20,7 +19,7 @@ class ComponentInstance:
         - A component instance python object, which holds the api object at data,
         its links created during this session at created_links, and the client
         """
-        self.client = APIClient(serial.api_key, serial.base_url)
+        self.client = APIClient()
         self.data = component_instance_data
         self.created_links = [] 
 
@@ -41,8 +40,8 @@ class ComponentInstance:
         - New component instance link
         """
 
-        if serial.debug:
-            print(f"Adding link: {link_name} with child identifier: {child_identifier}")
+        # TODO: debug logging
+        print(f"Adding link: {link_name} with child identifier: {child_identifier}")
         child_component_instance_params = {
                 "identifier": child_identifier
                 }
@@ -63,13 +62,12 @@ class ComponentInstance:
         data = {
                 "parent_component_instance_id": self.data["id"],
                 "child_component_instance_id": child_component_instance["id"],
-                "dataset_id": link_dataset["dataset"]["id"],
+                "dataset_id": link_dataset["id"],
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
                 }
         new_link = ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)) 
         self.created_links.append(new_link)
-        print(new_link.data)
         return new_link
 
 class ComponentInstances:
@@ -87,9 +85,9 @@ class ComponentInstances:
         Returns:
         - A component instance object 
         """
-        client = APIClient(serial.api_key, serial.base_url) 
-        if serial.debug:
-            print(f"Getting component instance: {identifier}")
+        client = APIClient() 
+        # TODO: debug logging
+        print(f"Getting component instance: {identifier}")
         return ComponentInstance(client.make_api_request(f"/components/instances/{identifier}", "GET"))
     
     @staticmethod
@@ -105,9 +103,9 @@ class ComponentInstances:
         - A component instance, as defined at 
         https://docs.serial.io/api-reference/component-instances/get-component-instance
         """
-        if serial.debug:
-            print(f"Creating component instance: {identifier} with component name: {component_name}")
-        client = APIClient(serial.api_key, serial.base_url) 
+        # TODO: debug logging
+        print(f"Creating component instance: {identifier} with component name: {component_name}")
+        client = APIClient() 
         # Get the component id for the given component name
         component_name_params = {
                 "name" : component_name,
@@ -134,10 +132,10 @@ class ComponentInstances:
         - A list of component instances, as defined at
         https://docs.serial.io/api-reference/component-instances/get-component-instance
         """
-        if serial.debug:
-            print(f"Listing component instances with query params: {query_params}")
+        # TODO: debug logging
+        print(f"Listing component instances with query params: {query_params}")
 
-        client = APIClient(serial.api_key, serial.base_url)
+        client = APIClient()
         instances = client.make_api_request("/components/instances", "GET", params=query_params)
         instance_object_list = [ComponentInstance(instance) for instance in instances]
         return instance_object_list 

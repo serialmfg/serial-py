@@ -1,11 +1,10 @@
 """
 This module contains the ProcessEntry class and ProcessEntries class.
 """
-import serialmfg as serial
 import os
 import mimetypes
 from datetime import datetime
-from ..api_client import APIClient 
+from ..api_client import APIClient ComponentInstances
 from .dataset import Datasets 
 from .component_instance import ComponentInstance
 from .component_instance_link import ComponentInstanceLink
@@ -25,9 +24,9 @@ class ProcessEntry:
         Returns:
         - A newly created process entry Python object, which holds the api object at data, the process id at process_id and the id at id
         """
-        if serial.debug:
-            print(f"Creating process entry object with data: {process_entry_data}")
-        self.client = APIClient(serial.api_key, serial.base_url) 
+        # TODO: debug logging
+        print(f"Creating process entry object with data: {process_entry_data}")
+        self.client = APIClient() 
         self.data = process_entry_data
         self.process_id = process_entry_data["process_id"] 
         self.id = process_entry_data["id"] 
@@ -45,16 +44,13 @@ class ProcessEntry:
         Returns:
         - API response for adding text data
         """
-        if serial.debug:
-            print(f"Adding text data: {dataset_name} with value: {value} and expected value: {expected_value}")
+        # TODO: debug logging
+        print(f"Adding text data: {dataset_name} with value: {value} and expected value: {expected_value}")
         dataset = None
         try:
-            dataset = serial.Datasets.get(dataset_name, "TEXT", self.process_id)
+            dataset = Datasets.get(dataset_name, "TEXT", self.process_id)
         except Exception as e:
-            if serial.allow_automatic_dataset_creation:
-                dataset = serial.Datasets.create(dataset_name, "TEXT", self.process_id)
-            else:
-                raise e
+            dataset = Datasets.create(dataset_name, "TEXT", self.process_id)
         data = {"type": "TEXT", "dataset_id": dataset.dataset_id, "value": value}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
@@ -72,11 +68,11 @@ class ProcessEntry:
         Returns:
         - API response for adding numerical data
         """
-        if serial.debug:
-            print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
+        # TODO: debug logging
+        print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
         dataset = None
         try:
-            dataset = serial.Datasets.get(dataset_name, "NUMERICAL", self.process_id)
+            dataset = Datasets.get(dataset_name, "NUMERICAL", self.process_id)
         except Exception as e:
             extra_params = {}
             if usl:
@@ -86,10 +82,7 @@ class ProcessEntry:
             if unit:
                 extra_params["unit"] = unit
 
-            if serial.allow_automatic_dataset_creation:
-                dataset = serial.Datasets.create(dataset_name, "NUMERICAL", self.process_id, extra_params=extra_params)
-            else:
-                raise e
+            dataset = Datasets.create(dataset_name, "NUMERICAL", self.process_id, extra_params=extra_params)
         data = {"type": "NUMERICAL", "dataset_id": dataset.dataset_id, "value": value}
         if usl:
             data["usl"] = usl
@@ -109,8 +102,8 @@ class ProcessEntry:
         Returns:
         - API response for adding file data
         """
-        if serial.debug:
-            print(f"Adding file data: {dataset_name} with path: {path} and file name: {file_name}")
+        # TODO: debug logging
+        print(f"Adding file data: {dataset_name} with path: {path} and file name: {file_name}")
         return self._upload_file(dataset_name, path, file_name, "FILE")
 
     def add_image(self, dataset_name, path, file_name=None):
@@ -125,8 +118,8 @@ class ProcessEntry:
         Returns:
         - API response for adding image data
         """
-        if serial.debug:
-            print(f"Adding image data: {dataset_name} with path: {path} and file name: {file_name}")
+        # TODO: debug logging
+        print(f"Adding image data: {dataset_name} with path: {path} and file name: {file_name}")
         return self._upload_file(dataset_name, path, file_name, "IMAGE")
     
     def _upload_file(self, dataset_name, path, file_name, dataset_type):
@@ -146,12 +139,9 @@ class ProcessEntry:
         storage_object = self.client.make_api_request("/files", "POST", files=files)
         dataset = None
         try:
-            dataset = serial.Datasets.get(dataset_name, dataset_type, self.process_id)
+            dataset = Datasets.get(dataset_name, dataset_type, self.process_id)
         except Exception as e:
-            if serial.allow_automatic_dataset_creation:
-                dataset = serial.Datasets.create(dataset_name, dataset_type, self.process_id)
-            else:
-                raise e
+            dataset = Datasets.create(dataset_name, dataset_type, self.process_id)
         data = {"type": dataset_type, "dataset_id": dataset.dataset_id, "file_id": storage_object["name"], "file_name": file_name}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
@@ -170,12 +160,9 @@ class ProcessEntry:
         """
         dataset = None
         try:
-            dataset = serial.Datasets.get(dataset_name, "BOOLEAN", self.process_id)
+            dataset = Datasets.get(dataset_name, "BOOLEAN", self.process_id)
         except Exception as e:
-            if serial.allow_automatic_dataset_creation:
-                dataset = serial.Datasets.create(dataset_name, "BOOLEAN", self.process_id)
-            else:
-                raise e
+            dataset = Datasets.create(dataset_name, "BOOLEAN", self.process_id)
         data = {"type": "BOOLEAN", "dataset_id": dataset.dataset_id, "value": value, "expected_value": expected_value}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
     
@@ -193,8 +180,8 @@ class ProcessEntry:
         Returns:
         - New component instance link
         """
-        if serial.debug:
-            print(f"Adding link: {link_name} with child identifier: {child_identifier}")
+        # TODO: debug logging
+        print(f"Adding link: {link_name} with child identifier: {child_identifier}")
         child_component_instance_params = {
                 "identifier": child_identifier
                 }
@@ -218,7 +205,7 @@ class ProcessEntry:
         data = {
                 "parent_component_instance_id": parent_component_instance["id"],
                 "child_component_instance_id": child_component_instance["id"],
-                "dataset_id": link_dataset["dataset"]["id"],
+                "dataset_id": link_dataset["id"],
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
                 }
@@ -226,7 +213,7 @@ class ProcessEntry:
         self.created_links.append(new_link)
         return new_link
 
-    def submit(self, cycle_time=None, is_pass=None, is_complete=None):
+    def submit(self, cycle_time=None, is_pass=None):
         """
         Mark a process entry as completed
 
@@ -235,7 +222,6 @@ class ProcessEntry:
         finished for this process.
         - is_pass?: Optional boolean for indicating whether the process passed for
         this entry
-        - is_complete?: Optional boolean for indicating whether the process is complete
         this entry
 
         Returns:
@@ -246,8 +232,7 @@ class ProcessEntry:
             data["cycle_time"] = cycle_time
         if is_pass: 
             data["is_pass"] = is_pass
-        if is_complete:
-            data["is_complete"] = is_complete
+        data["is_complete"] = True
 
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PATCH", data=data)
 
@@ -266,12 +251,12 @@ class ProcessEntries:
         Returns:
         - A process entry Python object
         """
-        client = APIClient(serial.api_key, serial.base_url)
+        client = APIClient()
         entry = client.make_api_request("/processes/entries", "GET", params={"id":id})[0]
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None):
         """
         Creates a process entry
 
@@ -284,7 +269,7 @@ class ProcessEntries:
         Returns:
         - A process entry Python object
         """
-        client = APIClient(serial.api_key, serial.base_url)
+        client = APIClient()
         if component_instance:
             component_instance_id = component_instance.data["id"]
         if not component_instance_id and not component_instance_identifier:
@@ -292,6 +277,8 @@ class ProcessEntries:
         if component_instance_identifier:
             component_instance_id = ComponentInstances.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
+        if not station_id:
+            data["station_id"] = config.station_id
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
 
@@ -307,7 +294,7 @@ class ProcessEntries:
         Returns:
         - A list of process entry Python objects, as defined above 
         """
-        client = APIClient(serial.api_key, serial.base_url)
+        client = APIClient()
         entries = client.make_api_request("/processes/entries", "GET", params=query_params)
         entry_object_list = [ProcessEntry(entry) for entry in entries]
         return entry_object_list

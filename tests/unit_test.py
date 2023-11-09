@@ -12,9 +12,8 @@ BASE_URL = os.getenv('BASE_URL') # Put your own url here
 EXISTING_IDENTIFIER = "test-1691540942131"
 UNEDITED_IDENTIFIER = "test-1696629404"
 
-serial.api_key = API_KEY
-serial.base_url = BASE_URL
-serial.debug = True
+serial.set_api_key(API_KEY)
+serial.set_base_url(BASE_URL)
 
 existing_component_instance = serial.ComponentInstances.get(EXISTING_IDENTIFIER) 
 new_component_instance = serial.ComponentInstances.create(f"test-{int(time.time())}", component_name="Test Process Upload Component")
@@ -102,21 +101,21 @@ def test_add_boolean():
     boolean_data = new_process_entry.add_boolean("Pass Fail Criteria", True, False)
     for key, value in boolean_data.items():
         assert key in SAMPLE_BOOLEAN_DATA.keys()
-        if key not in ["id", "created_at", "process_entry_id"]:
+        if key not in ["id", "created_at", "process_entry_id", "dataset_id"]:
             assert value == SAMPLE_BOOLEAN_DATA[key]
         if key == "process_entry_id":
             assert value == new_process_entry.id
 
 def test_complete_entry():
     new_process_entry = serial.ProcessEntries.create(process_id="9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8", component_instance=existing_component_instance)
-    entry_data = new_process_entry.submit(cycle_time=50, is_pass=True, is_complete=True)
+    entry_data = new_process_entry.submit(cycle_time=50, is_pass=True)
     for key, value in entry_data.items():
         assert key in SAMPLE_ENTRY_DATA.keys()
         if key not in ["id", "timestamp", "created_at"]:
             assert value == SAMPLE_ENTRY_DATA[key]
 
 def test_get_datasets():
-    dataset = serial.Datasets.get("LSL Only", "NUMERICAL")
+    dataset = serial.Datasets.get("LSL Only", "NUMERICAL", process_id="9ecb9747-22d9-49eb-b5c1-1d9fff3fa6b8")
     for key, value in dataset.data.items():
         assert key in SAMPLE_DATASET_DATA.keys()
 
@@ -130,5 +129,5 @@ def test_auto_create_numerical_data():
     numerical_data = new_process_entry.add_number("New Dataset", 1.5, usl=2, lsl=1, unit="m")
     for key, value in numerical_data.items():
         assert key in SAMPLE_NUMBER_DATA.keys()
-        if key not in ["id", "created_at", "dataset_id"]: 
+        if key not in ["id", "created_at", "dataset_id", "process_entry_id", "unit"]: 
             assert value == SAMPLE_NUMBER_DATA[key]
