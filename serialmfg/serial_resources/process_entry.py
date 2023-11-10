@@ -139,8 +139,11 @@ class ProcessEntry:
             file_name = os.path.basename(path)
         # if in the future we need to do a better guess, we can use python-magic to determine the mimetype
         files = {'file': (file_name, open(path, 'rb'), mimetypes.guess_type(path))} 
+        mimetype = mimetypes.guess_type(path)[0]
         storage_object = self.client.make_api_request("/files", "POST", files=files)
         dataset = None
+        if mimetype.startswith("image"):
+            dataset_type = "IMAGE"
         try:
             dataset = Datasets.get(dataset_name, dataset_type, self.process_id)
         except Exception as e:
