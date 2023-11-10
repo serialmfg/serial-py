@@ -30,6 +30,7 @@ class ProcessEntry:
         self.data = process_entry_data
         self.process_id = process_entry_data["process_id"] 
         self.id = process_entry_data["id"] 
+        self.component_instance_id = process_entry_data["unique_identifier_id"]
 
     def add_text(self, dataset_name, value, expected_value=None):
         """
@@ -166,7 +167,7 @@ class ProcessEntry:
         data = {"type": "BOOLEAN", "dataset_id": dataset.dataset_id, "value": value, "expected_value": expected_value}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
     
-    def add_link(self, dataset_name, child_identifier, parent_identifier, break_prior_links=False):
+    def add_link(self, dataset_name, child_identifier, break_prior_links=False):
         """
         Creates a link between a parent and a child at this specific
         process_entry
@@ -174,7 +175,6 @@ class ProcessEntry:
         Args:
         - dataset_name: User facing name for the link
         - child_identifier: Identifier for the child component instance to be linked
-        - parent_identifier: Identifier for the parent component instance to be linked
         - break_prior_links?: Boolean for whether to break prior links
 
         Returns:
@@ -185,25 +185,19 @@ class ProcessEntry:
         child_component_instance_params = {
                 "identifier": child_identifier
                 }
-        parent_component_instance_params = {
-                "identifier": parent_identifier
-                }
         link_params = {
                 "name": dataset_name
                 }
         child_component_instance = self.client.make_api_request("/components/instances",
                                                                 "GET",
                                                                 params=child_component_instance_params)[0]
-        parent_component_instance = self.client.make_api_request("/components/instances",
-                                                                "GET",
-                                                                params=parent_component_instance_params)[0]
 
         link_dataset = self.client.make_api_request("/datasets",
                                                     "GET",
                                                     params=link_params)[0]
         process_entry_id = self.id
         data = {
-                "parent_component_instance_id": parent_component_instance["id"],
+                "parent_component_instance_id": self.component_instance_id, 
                 "child_component_instance_id": child_component_instance["id"],
                 "dataset_id": link_dataset["id"],
                 "process_entry_id": process_entry_id,
