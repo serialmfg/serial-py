@@ -2,6 +2,7 @@
 This file contains the ComponentInstance class, which represents a component instance
 """
 from ..api_client import APIClient
+from ..exceptions import SerialAPIException
 from .component_instance_link import ComponentInstanceLink
 
 class ComponentInstance:
@@ -50,10 +51,17 @@ class ComponentInstance:
                 }
         child_component_instance = self.client.make_api_request("/components/instances",
                                                                 "GET",
-                                                                params=child_component_instance_params)[0]
+                                                                params=child_component_instance_params)
+        if len(child_component_instance) == 0:
+            raise SerialAPIException(f"Component instance with identifier {child_identifier} does not exist")
+        child_component_instance = child_component_instance[0]
         link_dataset = self.client.make_api_request("/datasets",
                                                     "GET",
-                                                    params=link_params)[0]
+                                                    params=link_params)
+        if len(link_dataset) == 0:
+            raise SerialAPIException(f"Dataset with name {link_name} does not exist")
+        link_dataset = link_dataset[0]
+
         process_entry_id = None
         if process_entry:
             process_entry_id = process_entry.id
@@ -112,7 +120,10 @@ class ComponentInstances:
                 }
         component_id = client.make_api_request("/components",
                                                      "GET",
-                                                     params=component_name_params)[0]["id"]
+                                                     params=component_name_params)
+        if len(component_id) == 0:
+            raise SerialAPIException(f"Component with name {component_name} does not exist")
+        component_id = component_id[0]["id"]
         data = {
                 "component_id": component_id,
                 "identifier": identifier,

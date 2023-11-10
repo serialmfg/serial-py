@@ -2,6 +2,7 @@
 This file contains the Dataset class and the Datasets class.
 """
 from ..api_client import APIClient
+from ..exceptions import SerialAPIException
 
 class Datasets:
     """
@@ -23,7 +24,13 @@ class Datasets:
         query_params = {"name": name, "type": data_type, "process_id": process_id}
         # TODO: debug logging
         #print(f"Getting dataset {name} of type {data_type}")
-        return Dataset(client.make_api_request("/datasets", "GET", params=query_params)[0])
+
+        dataset_data = client.make_api_request("/datasets", "GET", params=query_params)
+        if dataset_data and len(dataset_data) > 0:
+            return Dataset(dataset_data[0])
+        else:
+            raise SerialAPIException(f"Dataset {name} of type {data_type} not found")
+
     
     @staticmethod
     def create(name, data_type, process_id, extra_params=None):

@@ -1,5 +1,6 @@
 import requests
 from . import config
+from .exceptions import SerialAPIException
 
 class SingletonMeta(type):
     """
@@ -45,9 +46,7 @@ class APIClient(metaclass=SingletonMeta):
             return None
         
         if not response.ok:
-            self._error(response.text)
-            response.raise_for_status()
-            return None
+            raise SerialAPIException(f"API request failed: {response.text}", status_code=response.status_code)
         return response.json()
     
     def _error(self, message):
