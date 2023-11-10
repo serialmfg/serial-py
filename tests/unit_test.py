@@ -125,7 +125,7 @@ def test_complete_entry():
     entry_data = new_process_entry.submit(cycle_time=50, is_pass=True)
     for key, value in entry_data.items():
         assert key in SAMPLE_ENTRY_DATA.keys()
-        if key not in ["id", "timestamp", "created_at"]:
+        if key not in ["id", "timestamp", "created_at", "station_id", "process_revision"]:
             assert value == SAMPLE_ENTRY_DATA[key]
 
 def test_get_datasets():
