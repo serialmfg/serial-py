@@ -33,97 +33,148 @@ class ProcessEntry:
         self.process_id = process_entry_data["process_id"] 
         self.id = process_entry_data["id"] 
         self.component_instance_id = process_entry_data["unique_identifier_id"]
+        self.text_data_queue = []
+        self.numerical_data_queue = []
+        self.file_data_queue = []
+        self.boolean_data_queue = []
+        self.link_data_queue = []
 
     def add_text(self, dataset_name, value, expected_value=None):
         """
-        Add text data to a process entry
+        Store text data to be added to a process entry
 
         Args: 
         - dataset_name: User facing name of the dataset
         - value: The value to be submitted
-        - expected_value?: Optional argument to pass an expected value. If the 
-        values are the same, it would be considered a passing test result
+        - expected_value: Optional argument to pass an expected value. If the 
+          values are the same, it would be considered a passing test result
 
-        Returns:
-        - API response for adding text data
+        Stores:
+        - Information necessary to add text data
         """
-        # TODO: debug logging
-        #print(f"Adding text data: {dataset_name} with value: {value} and expected value: {expected_value}")
-        dataset = None
-        try:
-            dataset = Datasets.get(dataset_name, "TEXT", self.process_id)
-        except Exception as e:
-            dataset = Datasets.create(dataset_name, "TEXT", self.process_id)
-        data = {"type": "TEXT", "dataset_id": dataset.dataset_id, "value": value}
-        return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
+        # Store the necessary information in an internal queue or list
+        self.text_data_queue.append({
+            'dataset_name': dataset_name,
+            'value': value,
+            'expected_value': expected_value
+        })
+
+    def _process_text_data_queue(self):
+        """
+        Execute the stored requests to add text data to process entries.
+        """
+        for text_data in self.text_data_queue:
+            dataset_name = text_data['dataset_name']
+            value = text_data['value']
+            expected_value = text_data.get('expected_value')
+
+            dataset = Datasets.get_or_create_dataset(dataset_name, "TEXT", self.process_id)
+
+            data = {
+                "type": "TEXT",
+                "dataset_id": dataset.dataset_id,
+                "value": value,
+                # Include expected_value in the data if provided
+                **({'expected_value': expected_value} if expected_value is not None else {})
+            }
+            
+            # Assuming make_api_request can handle the 'data' as it is.
+            response = self.client.make_api_request(
+                f"/processes/entries/{self.id}", "PUT", data=data
+            )
+
+        # Clear the queue once all text data has been added
+        self.text_data_queue.clear()
 
     def add_number(self, dataset_name, value, usl=None, lsl=None, unit=None):
         """
-        Add numerical data to a process entry
+        Queue numerical data to be added to a process entry.
 
         Args: 
         - dataset_name: User facing name of the dataset
         - value: The value to be submitted
-        - usl?: Optional argument to override the dataset's upper spec limit
-        - lsl?: Optional argument to override the dataset's lower spec limit
-        - unit?: Optional argument to create the dataset's unit
-        
-        Returns:
-        - API response for adding numerical data
+        - usl: Optional argument to override the dataset's upper spec limit
+        - lsl: Optional argument to override the dataset's lower spec limit
+        - unit: Optional argument to create the dataset's unit
         """
-        # TODO: debug logging
-        #print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
-        dataset = None
-        try:
-            dataset = Datasets.get(dataset_name, "NUMERICAL", self.process_id)
-        except Exception as e:
-            extra_params = {}
-            if usl:
-                extra_params["usl"] = usl
-            if lsl:
-                extra_params["lsl"] = lsl
-            if unit:
-                extra_params["unit"] = unit
+        # Append a task to the queue with all necessary information
+        self.numerical_data_queue.append({
+            'dataset_name': dataset_name,
+            'value': value,
+            'usl': usl,
+            'lsl': lsl,
+            'unit': unit
+        })
 
-            dataset = Datasets.create(dataset_name, "NUMERICAL", self.process_id, extra_params=extra_params)
-        data = {"type": "NUMERICAL", "dataset_id": dataset.dataset_id, "value": value}
-        if usl:
-            data["usl"] = usl
-        if lsl:
-            data["lsl"] = lsl
-        return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
-
-    def add_file(self, dataset_name, path, file_name=None):
+    def _process_numerical_data_queue(self):
         """
-        Add file data to a process entry
-
-        Args: 
-        - dataset_name: User facing name of the dataset
-        - path: Path to the file on your file system
-        - file_name?: Optional argument to override the file name
-
-        Returns:
-        - API response for adding file data
+        Process the queued numerical data submissions.
         """
-        # TODO: debug logging
-        #print(f"Adding file data: {dataset_name} with path: {path} and file name: {file_name}")
-        return self._upload_file(dataset_name, path, file_name, "FILE")
+        for number_data in self.numerical_data_queue:
+            dataset_name = number_data['dataset_name']
+            value = number_data['value']
+            usl = number_data.get('usl')
+            lsl = number_data.get('lsl')
+            unit = number_data.get('unit')
+            extra_params = {'unit': unit, 'usl': usl, 'lsl': lsl}
+            
+            dataset = Datasets.get_or_create_dataset(dataset_name, "NUMERICAL", self.process_id, extra_params)
+            
+            data = {
+                "type": "NUMERICAL",
+                "dataset_id": dataset.dataset_id,
+                "value": value
+            }
+            if usl is not None:
+                data["usl"] = usl
+            if lsl is not None:
+                data["lsl"] = lsl
+
+            # Here, make_api_request would be an asynchronous method call
+            response = self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
     def add_image(self, dataset_name, path, file_name=None):
         """
-        Add image data to a process entry
+        DEPRECATED: Use add_file instead
 
         Args: 
         - dataset_name: User facing name of the dataset
         - path: Path to the file on your file system
-        - file_name?: Optional argument to override the file name
-
-        Returns:
-        - API response for adding image data
+        - file_name: Optional argument to override the file name
         """
-        # TODO: debug logging
-        #print(f"Adding image data: {dataset_name} with path: {path} and file name: {file_name}")
-        return self._upload_file(dataset_name, path, file_name, "IMAGE")
+        return self.add_file(dataset_name, path, file_name)
+
+    def add_file(self, dataset_name, path, file_name=None):
+        """
+        Queue file data to be added to a process entry.
+
+        Args: 
+        - dataset_name: User facing name of the dataset
+        - path: Path to the file on your file system
+        - file_name: Optional argument to override the file name
+        """
+        # Queue the task with all necessary information
+        self.file_data_queue.append({
+            'dataset_name': dataset_name,
+            'path': path,
+            'file_name': file_name
+        })
+
+    def _process_file_data_queue(self):
+        """
+        Process the queued file data submissions.
+        """
+        for file_data in self.file_data_queue:
+            dataset_name = file_data['dataset_name']
+            path = file_data['path']
+            file_name = file_data.get('file_name') or os.path.basename(path)
+
+            # This method should be updated to handle the actual file upload and dataset retrieval/creation
+            response = self._upload_file(dataset_name, path, file_name, "FILE")
+            # Handle the response as necessary
+
+        # Clear the queue once all files have been uploaded
+        self.file_data_queue.clear()
     
     def _upload_file(self, dataset_name, path, file_name, dataset_type):
         """
@@ -141,82 +192,104 @@ class ProcessEntry:
         files = {'file': (file_name, open(path, 'rb'), mimetypes.guess_type(path))} 
         mimetype = mimetypes.guess_type(path)[0]
         storage_object = self.client.make_api_request("/files", "POST", files=files)
-        dataset = None
         if mimetype.startswith("image"):
             dataset_type = "IMAGE"
-        try:
-            dataset = Datasets.get(dataset_name, dataset_type, self.process_id)
-        except Exception as e:
-            dataset = Datasets.create(dataset_name, dataset_type, self.process_id)
+        dataset = Datasets.get_or_create_dataset(dataset_name, dataset_type, self.process_id) 
         data = {"type": dataset_type, "dataset_id": dataset.dataset_id, "file_id": storage_object["name"], "file_name": file_name}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
     def add_boolean(self, dataset_name, value, expected_value):
         """
-        Add boolean data to a process entry
+        Queue boolean data to be added to a process entry.
 
         Args: 
         - dataset_name: User facing name of the dataset
         - value: The value to be submitted
-        - expected_value: argument to pass an expected value. If the 
-        values are the same, it would be considered a passing test result
-
-        Returns:
-        - API response for adding boolean data
+        - expected_value: Argument to pass an expected value.
         """
-        dataset = None
-        try:
-            dataset = Datasets.get(dataset_name, "BOOLEAN", self.process_id)
-        except Exception as e:
-            dataset = Datasets.create(dataset_name, "BOOLEAN", self.process_id)
-        data = {"type": "BOOLEAN", "dataset_id": dataset.dataset_id, "value": value, "expected_value": expected_value}
-        return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
-    
+        # Append a task with all necessary information to the queue
+        self.boolean_data_queue.append({
+            'dataset_name': dataset_name,
+            'value': value,
+            'expected_value': expected_value
+        })
+
+    def _process_boolean_data_queue(self):
+        """
+        Process the queued boolean data submissions.
+        """
+        for boolean_data in self.boolean_data_queue:
+            dataset_name = boolean_data['dataset_name']
+            value = boolean_data['value']
+            expected_value = boolean_data['expected_value']
+
+            # Retrieve or create the dataset as necessary
+            dataset = Datasets.get_or_create_dataset(dataset_name, "BOOLEAN", self.process_id)
+            
+            data = {
+                "type": "BOOLEAN",
+                "dataset_id": dataset.dataset_id,
+                "value": value,
+                "expected_value": expected_value
+            }
+
+            # Assuming make_api_request can handle the 'data' as it is
+            response = self.client.make_api_request(
+                f"/processes/entries/{self.id}", "PUT", data=data
+            )
+
+            # Handle the response as necessary
+
+        # Clear the queue once all boolean data has been added
+        self.boolean_data_queue.clear()
+
     def add_link(self, dataset_name, child_identifier, break_prior_links=False):
         """
-        Creates a link between a parent and a child at this specific
-        process_entry
+        Queue a link creation between a parent and a child at this specific process entry.
 
-        Args:
+        Args: 
         - dataset_name: User facing name for the link
         - child_identifier: Identifier for the child component instance to be linked
-        - break_prior_links?: Boolean for whether to break prior links
-
-        Returns:
-        - New component instance link
+        - break_prior_links: Boolean for whether to break prior links
         """
-        # TODO: debug logging
-        #print(f"Adding link: {dataset_name} with child identifier: {child_identifier}")
-        child_component_instance_params = {
-                "identifier": child_identifier
-                }
-        link_params = {
-                "name": dataset_name
-                }
-        child_component_instance = self.client.make_api_request("/components/instances",
-                                                                "GET",
-                                                                params=child_component_instance_params)
-        if len(child_component_instance) == 0:
-            raise SerialAPIException(f"Could not find component instance with identifier: {child_identifier}")
-        child_component_instance = child_component_instance[0]
+        # Queue the task with all necessary information
+        self.link_data_queue.append({
+            'dataset_name': dataset_name,
+            'child_identifier': child_identifier,
+            'break_prior_links': break_prior_links
+        })
+    
 
-        link_dataset = self.client.make_api_request("/datasets",
-                                                    "GET",
-                                                    params=link_params)
-        if len(link_dataset) == 0:
-            raise SerialAPIException(f"Could not find dataset with name: {dataset_name}")
-        link_dataset = link_dataset[0]
+    def _process_link_data_queue(self):
+        """
+        Process the queued link creation tasks.
+        """
+        for link_data in self.link_data_queue:
+            dataset_name = link_data['dataset_name']
+            child_identifier = link_data['child_identifier']
+            break_prior_links = link_data['break_prior_links']
 
-        process_entry_id = self.id
-        data = {
+            # Logic to retrieve the child component instance and link dataset
+            # Assume `get_child_component_instance` and `get_link_dataset` methods are implemented
+            child_component_instance_id = ComponentInstances.get(child_identifier).data["id"]
+            link_dataset = Datasets.get(dataset_name, "LINK", self.process_id)
+
+            # Now, create the link using the retrieved information
+            process_entry_id = self.id
+            data = {
                 "parent_component_instance_id": self.component_instance_id, 
-                "child_component_instance_id": child_component_instance["id"],
-                "dataset_id": link_dataset["id"],
+                "child_component_instance_id": child_component_instance,
+                "dataset_id": link_dataset.dataset_id,
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
-                }
-        new_link = ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)) 
-        return new_link
+            }
+            # Assuming make_api_request can handle the 'data' as it is
+            new_link_response = self.client.make_api_request(
+                "/components/instances/links", "PUT", data=data
+            )
+
+        # Clear the queue once all links have been created
+        self.link_data_queue.clear()
 
     def submit(self, cycle_time=None, is_pass=None):
         """
@@ -237,6 +310,15 @@ class ProcessEntry:
             data["cycle_time"] = cycle_time
         if is_pass is not None: 
             data["is_pass"] = is_pass
+        try:
+            self._process_text_data_queue()
+            self._process_numerical_data_queue()
+            self._process_file_data_queue()
+            self._process_boolean_data_queue()
+            self._process_link_data_queue()
+        except SerialAPIException as e:
+            raise SerialAPIException(f"Could not add data to process entry: {e}")
+
         data["is_complete"] = True
 
         self.data = self.client.make_api_request(f"/processes/entries/{self.id}", "PATCH", data=data)

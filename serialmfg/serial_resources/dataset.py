@@ -3,6 +3,11 @@ This file contains the Dataset class and the Datasets class.
 """
 from ..api_client import APIClient
 from ..exceptions import SerialAPIException
+class DatasetNotFound(SerialAPIException):
+    """
+    Exception for when a dataset is not found
+    """
+    pass
 
 class Datasets:
     """
@@ -29,7 +34,7 @@ class Datasets:
         if dataset_data and len(dataset_data) > 0:
             return Dataset(dataset_data[0])
         else:
-            raise SerialAPIException(f"Dataset {name} of type {data_type} not found")
+            raise DatasetNotFound(f"Dataset {name} of type {data_type} not found")
 
     
     @staticmethod
@@ -53,6 +58,25 @@ class Datasets:
         # TODO: debug logging
         #print(f"Creating dataset with type {data_type}: {name}")
         return Dataset(client.make_api_request("/datasets", "PUT", data=query_params))
+
+    @staticmethod
+    def get_or_create_dataset(name, data_type, process_id, extra_params=None):
+        """
+        Gets a dataset, if it exists, otherwise creates it
+        
+        Args:
+        - name: Dataset name
+        - data_type?: Dataset data type
+        - process_id?: Process ID
+        - extra_params?: Extra parameters. Valid options are: usl, lsl, & unit
+
+        Returns:
+        - A dataset Python object 
+        """
+        try:
+            return Datasets.get(name, data_type, process_id)
+        except DatasetNotFound as e:
+            return Datasets.create(name, data_type, process_id, extra_params)
 
 class Dataset:
     """
