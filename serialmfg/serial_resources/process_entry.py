@@ -262,7 +262,7 @@ class ProcessEntries:
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, override_station_id=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None):
         """
         Creates a process entry
 
@@ -271,7 +271,7 @@ class ProcessEntries:
         - component_instance?: Component instance object 
         - component_instance_id?: Component instance id (is overriden by component_instance)
         - component_instance_identifier?: Component instance identifier (is overriden by component_instance & component_instance_id)
-        - override_station_id?: Optional station id to override the default station id
+        - station_id?: Optional station id to override the default station id
 
         Returns:
         - A process entry Python object
@@ -284,8 +284,8 @@ class ProcessEntries:
         if component_instance_identifier:
             component_instance_id = ComponentInstances.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
-        if override_station_id:
-            data["station_id"] = override_station_id
+        if station_id:
+            data["station_id"] = station_id
         elif config.station_id:
             data["station_id"] = config.station_id
         entry = client.make_api_request("/processes/entries", "POST", data=data)
