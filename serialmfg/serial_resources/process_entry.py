@@ -5,6 +5,8 @@ import os
 import mimetypes
 from datetime import datetime
 from ..api_client import APIClient 
+from ..exceptions import SerialAPIException
+from .. import config
 from .dataset import Datasets 
 from .component_instance import ComponentInstance
 from .component_instance_link import ComponentInstanceLink
@@ -190,11 +192,18 @@ class ProcessEntry:
                 }
         child_component_instance = self.client.make_api_request("/components/instances",
                                                                 "GET",
-                                                                params=child_component_instance_params)[0]
+                                                                params=child_component_instance_params)
+        if len(child_component_instance) == 0:
+            raise SerialAPIException(f"Could not find component instance with identifier: {child_identifier}")
+        child_component_instance = child_component_instance[0]
 
         link_dataset = self.client.make_api_request("/datasets",
                                                     "GET",
-                                                    params=link_params)[0]
+                                                    params=link_params)
+        if len(link_dataset) == 0:
+            raise SerialAPIException(f"Could not find dataset with name: {dataset_name}")
+        link_dataset = link_dataset[0]
+
         process_entry_id = self.id
         data = {
                 "parent_component_instance_id": self.component_instance_id, 
@@ -246,11 +255,14 @@ class ProcessEntries:
         - A process entry Python object
         """
         client = APIClient()
-        entry = client.make_api_request("/processes/entries", "GET", params={"id":id})[0]
+        entry = client.make_api_request("/processes/entries", "GET", params={"id":id})
+        if len(entry) == 0:
+            raise SerialAPIException(f"Could not find process entry with id: {id}")
+        entry = entry[0]
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, override_station_id=None):
         """
         Creates a process entry
 
@@ -259,6 +271,7 @@ class ProcessEntries:
         - component_instance?: Component instance object 
         - component_instance_id?: Component instance id (is overriden by component_instance)
         - component_instance_identifier?: Component instance identifier (is overriden by component_instance & component_instance_id)
+        - override_station_id?: Optional station id to override the default station id
 
         Returns:
         - A process entry Python object
@@ -271,8 +284,10 @@ class ProcessEntries:
         if component_instance_identifier:
             component_instance_id = ComponentInstances.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
-        if station_id:
-            data["station_id"] = station_id
+        if override_station_id:
+            data["station_id"] = override_station_id
+        elif config.station_id:
+            data["station_id"] = config.station_id
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
 

@@ -14,6 +14,7 @@ UNEDITED_IDENTIFIER = "test-1696629404"
 
 serial.set_api_key(API_KEY)
 serial.set_base_url(BASE_URL)
+serial.set_station_id("2f02d2be-ece6-410f-ad80-ffd746988870")
 
 existing_component_instance = serial.ComponentInstances.get(EXISTING_IDENTIFIER) 
 new_component_instance = serial.ComponentInstances.create(f"test-{int(time.time())}", component_name="Test Process Upload Component")
@@ -62,8 +63,10 @@ def test_get_process_entries():
     assert existing_process_entry.id == "e6ff9f24-8435-4ed7-9b4a-0f4b860ac1fc"
 
 def test_create_process_entries():
-    assert new_process_entry.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
-    assert new_process_entry.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
+    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance=existing_component_instance) 
+
+    assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
+    assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
 
 def test_add_text():
     text_data = existing_process_entry.add_text("New Dataset", "Bob's Burgers") 
