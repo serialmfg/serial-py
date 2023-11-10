@@ -55,7 +55,7 @@ class APIClient(metaclass=SingletonMeta):
 
     def _log(self, message):
         # TODO: debug logging
-        print(f"DEBUG: {message}")
+        #print(f"DEBUG: {message}")
 
     def _get(self, endpoint, params=None):
         self._log(f"GET request to {endpoint} with params {params}")

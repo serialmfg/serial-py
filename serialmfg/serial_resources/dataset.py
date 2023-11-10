@@ -22,7 +22,7 @@ class Datasets:
         client = APIClient()
         query_params = {"name": name, "type": data_type, "process_id": process_id}
         # TODO: debug logging
-        print(f"Getting dataset {name} of type {data_type}")
+        #print(f"Getting dataset {name} of type {data_type}")
         return Dataset(client.make_api_request("/datasets", "GET", params=query_params)[0])
     
     @staticmethod
@@ -44,7 +44,7 @@ class Datasets:
         if extra_params:
             query_params.update(extra_params)
         # TODO: debug logging
-        print(f"Creating dataset with type {data_type}: {name}")
+        #print(f"Creating dataset with type {data_type}: {name}")
         return Dataset(client.make_api_request("/datasets", "PUT", data=query_params))
 
 class Dataset:
@@ -61,7 +61,6 @@ class Dataset:
         - A dataset Python object, which holds the api object at data, the dataset name at name, the dataset id at dataset_id and the (field) id at id
         """
         self.data = dataset_data
-        print(dataset_data)
         self.name = dataset_data["name"]
         self.dataset_id = dataset_data["id"]
 
