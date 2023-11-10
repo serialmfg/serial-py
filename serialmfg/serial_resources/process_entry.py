@@ -8,7 +8,7 @@ from ..api_client import APIClient
 from ..exceptions import SerialAPIException
 from .. import config
 from .dataset import Datasets 
-from .component_instance import ComponentInstance
+from .component_instance import ComponentInstance, ComponentInstances
 from .component_instance_link import ComponentInstanceLink
 
 class ProcessEntry:

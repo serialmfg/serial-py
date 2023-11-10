@@ -68,6 +68,17 @@ def test_create_process_entries():
     assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
     assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
 
+def test_create_process_entries_with_identifier():
+    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance_identifier=EXISTING_IDENTIFIER) 
+
+    assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
+    assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
+
+def test_create_process_entries_with_id():
+    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance_id="95db48e1-99ad-4e35-a86b-fa0beca5f313") 
+
+    assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
+    assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
 def test_add_text():
     text_data = existing_process_entry.add_text("New Dataset", "Bob's Burgers") 
     for key, value in text_data.items():
