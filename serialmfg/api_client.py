@@ -54,6 +54,7 @@ class APIClient(metaclass=SingletonMeta):
         print(f"ERROR: {message}")
 
     def _log(self, message):
+        pass
         # TODO: debug logging
         #print(f"DEBUG: {message}")
 
