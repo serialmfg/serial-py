@@ -4,7 +4,7 @@ This module contains the ProcessEntry class and ProcessEntries class.
 import os
 import mimetypes
 from datetime import datetime
-from ..api_client import APIClient ComponentInstances
+from ..api_client import APIClient 
 from .dataset import Datasets 
 from .component_instance import ComponentInstance
 from .component_instance_link import ComponentInstanceLink
@@ -25,7 +25,7 @@ class ProcessEntry:
         - A newly created process entry Python object, which holds the api object at data, the process id at process_id and the id at id
         """
         # TODO: debug logging
-        print(f"Creating process entry object with data: {process_entry_data}")
+        #print(f"Creating process entry object with data: {process_entry_data}")
         self.client = APIClient() 
         self.data = process_entry_data
         self.process_id = process_entry_data["process_id"] 
@@ -45,7 +45,7 @@ class ProcessEntry:
         - API response for adding text data
         """
         # TODO: debug logging
-        print(f"Adding text data: {dataset_name} with value: {value} and expected value: {expected_value}")
+        #print(f"Adding text data: {dataset_name} with value: {value} and expected value: {expected_value}")
         dataset = None
         try:
             dataset = Datasets.get(dataset_name, "TEXT", self.process_id)
@@ -69,7 +69,7 @@ class ProcessEntry:
         - API response for adding numerical data
         """
         # TODO: debug logging
-        print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
+        #print(f"Adding numerical data: {dataset_name} with value: {value} and usl: {usl} & lsl: {lsl}")
         dataset = None
         try:
             dataset = Datasets.get(dataset_name, "NUMERICAL", self.process_id)
@@ -103,7 +103,7 @@ class ProcessEntry:
         - API response for adding file data
         """
         # TODO: debug logging
-        print(f"Adding file data: {dataset_name} with path: {path} and file name: {file_name}")
+        #print(f"Adding file data: {dataset_name} with path: {path} and file name: {file_name}")
         return self._upload_file(dataset_name, path, file_name, "FILE")
 
     def add_image(self, dataset_name, path, file_name=None):
@@ -119,7 +119,7 @@ class ProcessEntry:
         - API response for adding image data
         """
         # TODO: debug logging
-        print(f"Adding image data: {dataset_name} with path: {path} and file name: {file_name}")
+        #print(f"Adding image data: {dataset_name} with path: {path} and file name: {file_name}")
         return self._upload_file(dataset_name, path, file_name, "IMAGE")
     
     def _upload_file(self, dataset_name, path, file_name, dataset_type):
@@ -166,13 +166,13 @@ class ProcessEntry:
         data = {"type": "BOOLEAN", "dataset_id": dataset.dataset_id, "value": value, "expected_value": expected_value}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
     
-    def add_link(self, link_name, child_identifier, parent_identifier, break_prior_links=False):
+    def add_link(self, dataset_name, child_identifier, parent_identifier, break_prior_links=False):
         """
         Creates a link between a parent and a child at this specific
         process_entry
 
         Args:
-        - link_name: User facing name for the link
+        - dataset_name: User facing name for the link
         - child_identifier: Identifier for the child component instance to be linked
         - parent_identifier: Identifier for the parent component instance to be linked
         - break_prior_links?: Boolean for whether to break prior links
@@ -181,7 +181,7 @@ class ProcessEntry:
         - New component instance link
         """
         # TODO: debug logging
-        print(f"Adding link: {link_name} with child identifier: {child_identifier}")
+        #print(f"Adding link: {dataset_name} with child identifier: {child_identifier}")
         child_component_instance_params = {
                 "identifier": child_identifier
                 }
@@ -189,7 +189,7 @@ class ProcessEntry:
                 "identifier": parent_identifier
                 }
         link_params = {
-                "name": link_name
+                "name": dataset_name
                 }
         child_component_instance = self.client.make_api_request("/components/instances",
                                                                 "GET",
@@ -277,8 +277,6 @@ class ProcessEntries:
         if component_instance_identifier:
             component_instance_id = ComponentInstances.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
-        if not station_id:
-            data["station_id"] = config.station_id
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
 

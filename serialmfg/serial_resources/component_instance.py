@@ -41,7 +41,7 @@ class ComponentInstance:
         """
 
         # TODO: debug logging
-        print(f"Adding link: {link_name} with child identifier: {child_identifier}")
+        #print(f"Adding link: {link_name} with child identifier: {child_identifier}")
         child_component_instance_params = {
                 "identifier": child_identifier
                 }
@@ -87,7 +87,7 @@ class ComponentInstances:
         """
         client = APIClient() 
         # TODO: debug logging
-        print(f"Getting component instance: {identifier}")
+        #print(f"Getting component instance: {identifier}")
         return ComponentInstance(client.make_api_request(f"/components/instances/{identifier}", "GET"))
     
     @staticmethod
@@ -104,7 +104,7 @@ class ComponentInstances:
         https://docs.serial.io/api-reference/component-instances/get-component-instance
         """
         # TODO: debug logging
-        print(f"Creating component instance: {identifier} with component name: {component_name}")
+        #print(f"Creating component instance: {identifier} with component name: {component_name}")
         client = APIClient() 
         # Get the component id for the given component name
         component_name_params = {
@@ -133,7 +133,7 @@ class ComponentInstances:
         https://docs.serial.io/api-reference/component-instances/get-component-instance
         """
         # TODO: debug logging
-        print(f"Listing component instances with query params: {query_params}")
+        #print(f"Listing component instances with query params: {query_params}")
 
         client = APIClient()
         instances = client.make_api_request("/components/instances", "GET", params=query_params)

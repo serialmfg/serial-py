@@ -24,8 +24,5 @@ def set_api_key(key):
 def set_base_url(url):
     config.base_url = url
 
-def set_station_id(id):
-    config.station_id = id
-
 # Export the functions so that they can be used as serial.set_api_key, etc.
-__all__ = ['set_api_key', 'set_base_url', 'set_station_id', ...]
+__all__ = ['set_api_key', 'set_base_url', ...]
