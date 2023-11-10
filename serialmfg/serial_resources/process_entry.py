@@ -271,6 +271,8 @@ class ProcessEntries:
         if component_instance_identifier:
             component_instance_id = ComponentInstances.get(component_instance_identifier).data["id"]
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
+        if station_id:
+            data["station_id"] = station_id
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
 
