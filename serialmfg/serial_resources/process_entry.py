@@ -204,7 +204,6 @@ class ProcessEntry:
                 "break_prior_links": break_prior_links,
                 }
         new_link = ComponentInstanceLink(self.client.make_api_request("/components/instances/links", "PUT", data=data)) 
-        self.created_links.append(new_link)
         return new_link
 
     def submit(self, cycle_time=None, is_pass=None):
@@ -222,13 +221,14 @@ class ProcessEntry:
         - API response for submitting a process entry
         """
         data = {}
-        if cycle_time:
+        if cycle_time is not None:
             data["cycle_time"] = cycle_time
-        if is_pass: 
+        if is_pass is not None: 
             data["is_pass"] = is_pass
         data["is_complete"] = True
 
-        return self.client.make_api_request(f"/processes/entries/{self.id}", "PATCH", data=data)
+        self.data = self.client.make_api_request(f"/processes/entries/{self.id}", "PATCH", data=data)
+        return self.data
 
 class ProcessEntries:
     """
