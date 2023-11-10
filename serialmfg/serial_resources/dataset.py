@@ -1,7 +1,6 @@
 """
 This file contains the Dataset class and the Datasets class.
 """
-import serialmfg as serial
 from ..api_client import APIClient
 
 class Datasets:
@@ -9,7 +8,7 @@ class Datasets:
     A class for dataset data methods
     """
     @staticmethod
-    def get(name, data_type):
+    def get(name, data_type, process_id):
         """
         Gets a dataset, if it exists
         
@@ -20,10 +19,10 @@ class Datasets:
         Returns:
         - A dataset Python object 
         """
-        client = APIClient(serial.api_key, serial.base_url)
-        query_params = {"name": name, "type": data_type}
-        if serial.debug:
-            print(f"Getting dataset {name} of type {data_type}")
+        client = APIClient()
+        query_params = {"name": name, "type": data_type, "process_id": process_id}
+        # TODO: debug logging
+        print(f"Getting dataset {name} of type {data_type}")
         return Dataset(client.make_api_request("/datasets", "GET", params=query_params)[0])
     
     @staticmethod
@@ -40,12 +39,12 @@ class Datasets:
         Returns:
         - A dataset Python object 
         """
-        client = APIClient(serial.api_key, serial.base_url)
+        client = APIClient()
         query_params = {"name": name, "type": data_type, "process_id": process_id}
         if extra_params:
             query_params.update(extra_params)
-        if serial.debug:
-            print(f"Creating dataset with type {data_type}: {name}")
+        # TODO: debug logging
+        print(f"Creating dataset with type {data_type}: {name}")
         return Dataset(client.make_api_request("/datasets", "PUT", data=query_params))
 
 class Dataset:
@@ -62,7 +61,7 @@ class Dataset:
         - A dataset Python object, which holds the api object at data, the dataset name at name, the dataset id at dataset_id and the (field) id at id
         """
         self.data = dataset_data
-        self.name = dataset_data["dataset"]["name"]
-        self.id = dataset_data["dataset"]["id"]
-        self.dataset_id = dataset_data["dataset"]["id"]
+        print(dataset_data)
+        self.name = dataset_data["name"]
+        self.dataset_id = dataset_data["id"]
 

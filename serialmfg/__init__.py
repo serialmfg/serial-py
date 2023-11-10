@@ -16,9 +16,16 @@ from .process import Process
 from .serial_resources.component_instance import ComponentInstances
 from .serial_resources.process_entry import ProcessEntries
 from .serial_resources.dataset import Datasets
+from . import config
 
-api_key = None
-base_url = "https://api.serial.io"
-station_id = None
-debug = False
-allow_automatic_dataset_creation = True 
+def set_api_key(key):
+    config.api_key = key
+
+def set_base_url(url):
+    config.base_url = url
+
+def set_station_id(id):
+    config.station_id = id
+
+# Export the functions so that they can be used as serial.set_api_key, etc.
+__all__ = ['set_api_key', 'set_base_url', 'set_station_id', ...]
