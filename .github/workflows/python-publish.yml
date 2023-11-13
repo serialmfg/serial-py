@@ -26,6 +26,11 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+        pip install setuptools
     - name: Bump version and push tag
       run: |
         ./bump_version.sh
@@ -35,10 +40,6 @@ jobs:
         git commit -am "Bump version to $NEW_VERSION"
         git tag $NEW_VERSION
         git push origin $NEW_VERSION
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build
     - name: Build package
       run: python -m build
     - name: Publish package
