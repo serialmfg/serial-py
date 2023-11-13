@@ -278,7 +278,7 @@ class ProcessEntry:
             process_entry_id = self.id
             data = {
                 "parent_component_instance_id": self.component_instance_id, 
-                "child_component_instance_id": child_component_instance,
+                "child_component_instance_id": child_component_instance_id,
                 "dataset_id": link_dataset.dataset_id,
                 "process_entry_id": process_entry_id,
                 "break_prior_links": break_prior_links,
