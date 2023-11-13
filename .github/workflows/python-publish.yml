@@ -38,7 +38,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -am "Bump version to $NEW_VERSION"
-        ./scripts/delete_old_tag.sh
+        ./scripts/delete_old_tag.sh $NEW_VERSION
         git tag $NEW_VERSION
         git push origin $NEW_VERSION
     - name: Build package
