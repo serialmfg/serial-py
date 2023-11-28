@@ -102,6 +102,29 @@ def test_create_process_entries_with_id_lots_of_data_and_submit():
     assert new_process_entry_3.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
 
     for i in range(100):
+        if i == 50:
+            serial.set_api_key("bad_key")
+        new_process_entry_3.add_text("New Dataset", "Bob's Burgers") 
+        new_process_entry_3.add_number("New Dataset", 1.5, usl=5, lsl=0) 
+
+        new_process_entry_3.add_file("New Dataset", "/Users/clarke/repos/serial-py/tests/test.txt")
+        new_process_entry_3.add_boolean("Pass Fail Criteria", True, False)
+
+    new_process_entry_3.submit(cycle_time=50, is_pass=True)
+
+    assert new_process_entry_3.data["cycle_time"] == 50
+
+def test_process_entry_submit_handles_failures():
+    new_process_entry_3 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance_id="95db48e1-99ad-4e35-a86b-fa0beca5f313") 
+
+    assert new_process_entry_3.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
+    assert new_process_entry_3.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
+
+    for i in range(100):
+        if i == 50:
+            serial.set_api_key("bad_key")
+        if i == 75:
+            serial.set_api_key(API_KEY)
         new_process_entry_3.add_text("New Dataset", "Bob's Burgers") 
         new_process_entry_3.add_number("New Dataset", 1.5, usl=5, lsl=0) 
 
@@ -109,9 +132,10 @@ def test_create_process_entries_with_id_lots_of_data_and_submit():
 
         new_process_entry_3.add_boolean("Pass Fail Criteria", True, False)
 
-    new_process_entry_3.submit(cycle_time=50, is_pass=True)
-
-    assert new_process_entry_3.data["cycle_time"] == 50
+    try:
+        new_process_entry_3.submit(cycle_time=50, is_pass=True)
+    except serial.SerialAPIException as e:
+        assert "Could not add data to process entry" in e.message 
 
 def test_create_process_entries_with_identifier_and_fail():
     new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance_identifier=EXISTING_IDENTIFIER)
