@@ -3,13 +3,12 @@ This module contains the ProcessEntry class and ProcessEntries class.
 """
 import os
 import mimetypes
-from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from ..api_client import APIClient 
 from ..exceptions import SerialAPIException
 from .. import config
 from .dataset import Datasets 
-from .component_instance import ComponentInstance, ComponentInstances
-from .component_instance_link import ComponentInstanceLink
+from .component_instance import ComponentInstances
 
 class ProcessEntry:
     """
@@ -39,6 +38,28 @@ class ProcessEntry:
         self.boolean_data_queue = []
         self.link_data_queue = []
 
+    def _process_queue(self):
+        """
+        Process all queued data submissions.
+        """
+        with ThreadPoolExecutor() as executor:
+            # Submit each queue processing function to the executor
+            futures = [
+                executor.submit(self._process_text_data_queue),
+                executor.submit(self._process_numerical_data_queue),
+                executor.submit(self._process_file_data_queue),
+                executor.submit(self._process_boolean_data_queue),
+                executor.submit(self._process_link_data_queue)
+            ]
+
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # Handle exceptions
+                    print(f"An error occurred: {e}")
+                    raise SerialAPIException(f"An error occurred: {e}")
+
     def add_text(self, dataset_name, value, expected_value=None):
         """
         Store text data to be added to a process entry
@@ -60,31 +81,43 @@ class ProcessEntry:
         })
 
     def _process_text_data_queue(self):
-        """
-        Execute the stored requests to add text data to process entries.
-        """
-        for text_data in self.text_data_queue:
-            dataset_name = text_data['dataset_name']
-            value = text_data['value']
-            expected_value = text_data.get('expected_value')
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for text_data in self.text_data_queue:
+                # Submit each request to the executor
+                futures.append(executor.submit(self._process_single_text_data, text_data))
 
-            dataset = Datasets.get_or_create_dataset(dataset_name, "TEXT", self.process_id)
+            # Clear the queue once all futures are submitted
+            self.text_data_queue.clear()
 
-            data = {
-                "type": "TEXT",
-                "dataset_id": dataset.dataset_id,
-                "value": value,
-                # Include expected_value in the data if provided
-                **({'expected_value': expected_value} if expected_value is not None else {})
-            }
-            
-            # Assuming make_api_request can handle the 'data' as it is.
-            response = self.client.make_api_request(
-                f"/processes/entries/{self.id}", "PUT", data=data
-            )
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # Handle exceptions
+                    print(f"An error occurred: {e}")
+                    raise SerialAPIException(f"An error occurred: {e}")
 
-        # Clear the queue once all text data has been added
-        self.text_data_queue.clear()
+    def _process_single_text_data(self, text_data):
+        # The code that processes a single text data entry
+        dataset_name = text_data['dataset_name']
+        value = text_data['value']
+        expected_value = text_data.get('expected_value')
+
+        dataset = Datasets.get_or_create_dataset(dataset_name, "TEXT", self.process_id)
+
+        data = {
+            "type": "TEXT",
+            "dataset_id": dataset.dataset_id,
+            "value": value,
+            **({'expected_value': expected_value} if expected_value is not None else {})
+        }
+
+        # Make the API request
+        response = self.client.make_api_request(
+            f"/processes/entries/{self.id}", "PUT", data=data
+        )
+        return response
 
     def add_number(self, dataset_name, value, usl=None, lsl=None, unit=None):
         """
@@ -110,28 +143,47 @@ class ProcessEntry:
         """
         Process the queued numerical data submissions.
         """
-        for number_data in self.numerical_data_queue:
-            dataset_name = number_data['dataset_name']
-            value = number_data['value']
-            usl = number_data.get('usl')
-            lsl = number_data.get('lsl')
-            unit = number_data.get('unit')
-            extra_params = {'unit': unit, 'usl': usl, 'lsl': lsl}
-            
-            dataset = Datasets.get_or_create_dataset(dataset_name, "NUMERICAL", self.process_id, extra_params)
-            
-            data = {
-                "type": "NUMERICAL",
-                "dataset_id": dataset.dataset_id,
-                "value": value
-            }
-            if usl is not None:
-                data["usl"] = usl
-            if lsl is not None:
-                data["lsl"] = lsl
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for number_data in self.numerical_data_queue:
+                # Submit each request to the executor
+                futures.append(executor.submit(self._process_single_numerical_data, number_data))
 
-            # Here, make_api_request would be an asynchronous method call
-            response = self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
+            # Clear the queue once all futures are submitted
+            self.numerical_data_queue.clear()
+
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # Handle exceptions
+                    print(f"An error occurred: {e}")
+                    raise SerialAPIException(f"An error occurred: {e}")
+
+    def _process_single_numerical_data(self, number_data):
+        # The code that processes a single numerical data entry
+        dataset_name = number_data['dataset_name']
+        value = number_data['value']
+        usl = number_data.get('usl')
+        lsl = number_data.get('lsl')
+        unit = number_data.get('unit')
+        extra_params = {'unit': unit, 'usl': usl, 'lsl': lsl}
+            
+        dataset = Datasets.get_or_create_dataset(dataset_name, "NUMERICAL", self.process_id, extra_params)
+        
+        data = {
+            "type": "NUMERICAL",
+            "dataset_id": dataset.dataset_id,
+            "value": value
+        }
+        if usl is not None:
+            data["usl"] = usl
+        if lsl is not None:
+            data["lsl"] = lsl
+
+        # Make the API request
+        response = self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
+        return response
 
     def add_image(self, dataset_name, path, file_name=None):
         """
@@ -164,17 +216,31 @@ class ProcessEntry:
         """
         Process the queued file data submissions.
         """
-        for file_data in self.file_data_queue:
-            dataset_name = file_data['dataset_name']
-            path = file_data['path']
-            file_name = file_data.get('file_name') or os.path.basename(path)
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for file_data in self.file_data_queue:
+                # Submit each file upload request to the executor
+                futures.append(executor.submit(self._process_single_file_data, file_data))
 
-            # This method should be updated to handle the actual file upload and dataset retrieval/creation
-            response = self._upload_file(dataset_name, path, file_name, "FILE")
-            # Handle the response as necessary
+            # Clear the queue once all futures are submitted
+            self.file_data_queue.clear()
 
-        # Clear the queue once all files have been uploaded
-        self.file_data_queue.clear()
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # Handle exceptions
+                    print(f"An error occurred: {e}")
+                    raise SerialAPIException(f"An error occurred: {e}")
+
+    def _process_single_file_data(self, file_data):
+        # The code that processes a single file data entry
+        dataset_name = file_data['dataset_name']
+        path = file_data['path']
+        file_name = file_data.get('file_name') or os.path.basename(path)
+
+        response = self._upload_file(dataset_name, path, file_name, "FILE")
+        return response
     
     def _upload_file(self, dataset_name, path, file_name, dataset_type):
         """
@@ -218,30 +284,44 @@ class ProcessEntry:
         """
         Process the queued boolean data submissions.
         """
-        for boolean_data in self.boolean_data_queue:
-            dataset_name = boolean_data['dataset_name']
-            value = boolean_data['value']
-            expected_value = boolean_data['expected_value']
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for boolean_data in self.boolean_data_queue:
+                # Submit each boolean data processing task to the executor
+                futures.append(executor.submit(self._process_single_boolean_data, boolean_data))
 
-            # Retrieve or create the dataset as necessary
-            dataset = Datasets.get_or_create_dataset(dataset_name, "BOOLEAN", self.process_id)
-            
-            data = {
-                "type": "BOOLEAN",
-                "dataset_id": dataset.dataset_id,
-                "value": value,
-                "expected_value": expected_value
-            }
+            # Clear the queue once all futures are submitted
+            self.boolean_data_queue.clear()
 
-            # Assuming make_api_request can handle the 'data' as it is
-            response = self.client.make_api_request(
-                f"/processes/entries/{self.id}", "PUT", data=data
-            )
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # Handle exceptions
+                    print(f"An error occurred: {e}")
+                    raise SerialAPIException(f"An error occurred: {e}")
 
-            # Handle the response as necessary
+    def _process_single_boolean_data(self, boolean_data):
+        # The code that processes a single boolean data entry
+        dataset_name = boolean_data['dataset_name']
+        value = boolean_data['value']
+        expected_value = boolean_data['expected_value']
 
-        # Clear the queue once all boolean data has been added
-        self.boolean_data_queue.clear()
+        dataset = Datasets.get_or_create_dataset(dataset_name, "BOOLEAN", self.process_id)
+        
+        data = {
+            "type": "BOOLEAN",
+            "dataset_id": dataset.dataset_id,
+            "value": value,
+            "expected_value": expected_value
+        }
+
+        # Make the API request
+        response = self.client.make_api_request(
+            f"/processes/entries/{self.id}", "PUT", data=data
+        )
+        return response
+
 
     def add_link(self, dataset_name, child_identifier, break_prior_links=False):
         """
@@ -258,38 +338,51 @@ class ProcessEntry:
             'child_identifier': child_identifier,
             'break_prior_links': break_prior_links
         })
-    
 
     def _process_link_data_queue(self):
         """
         Process the queued link creation tasks.
         """
-        for link_data in self.link_data_queue:
-            dataset_name = link_data['dataset_name']
-            child_identifier = link_data['child_identifier']
-            break_prior_links = link_data['break_prior_links']
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for link_data in self.link_data_queue:
+                # Submit each link data processing task to the executor
+                futures.append(executor.submit(self._process_single_link_data, link_data))
 
-            # Logic to retrieve the child component instance and link dataset
-            # Assume `get_child_component_instance` and `get_link_dataset` methods are implemented
-            child_component_instance_id = ComponentInstances.get(child_identifier).data["id"]
-            link_dataset = Datasets.get(dataset_name, "LINK", self.process_id)
+            # Clear the queue once all futures are submitted
+            self.link_data_queue.clear()
 
-            # Now, create the link using the retrieved information
-            process_entry_id = self.id
-            data = {
-                "parent_component_instance_id": self.component_instance_id, 
-                "child_component_instance_id": child_component_instance_id,
-                "dataset_id": link_dataset.dataset_id,
-                "process_entry_id": process_entry_id,
-                "break_prior_links": break_prior_links,
-            }
-            # Assuming make_api_request can handle the 'data' as it is
-            new_link_response = self.client.make_api_request(
-                "/components/instances/links", "PUT", data=data
-            )
+            # Optional: Wait for all tasks to complete and handle results/errors
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    # Handle exceptions
+                    print(f"An error occurred: {e}")
 
-        # Clear the queue once all links have been created
-        self.link_data_queue.clear()
+    def _process_single_link_data(self, link_data):
+        # The code that processes a single link data entry
+        dataset_name = link_data['dataset_name']
+        child_identifier = link_data['child_identifier']
+        break_prior_links = link_data['break_prior_links']
+
+        child_component_instance_id = ComponentInstances.get(child_identifier).data["id"]
+        link_dataset = Datasets.get(dataset_name, "LINK", self.process_id)
+
+        process_entry_id = self.id
+        data = {
+            "parent_component_instance_id": self.component_instance_id, 
+            "child_component_instance_id": child_component_instance_id,
+            "dataset_id": link_dataset.dataset_id,
+            "process_entry_id": process_entry_id,
+            "break_prior_links": break_prior_links,
+        }
+
+        # Make the API request
+        new_link_response = self.client.make_api_request(
+            "/components/instances/links", "PUT", data=data
+        )
+        return new_link_response
 
     def submit(self, cycle_time=None, is_pass=None):
         """
@@ -311,11 +404,7 @@ class ProcessEntry:
         if is_pass is not None: 
             data["is_pass"] = is_pass
         try:
-            self._process_text_data_queue()
-            self._process_numerical_data_queue()
-            self._process_file_data_queue()
-            self._process_boolean_data_queue()
-            self._process_link_data_queue()
+            self._process_queue()
         except SerialAPIException as e:
             raise SerialAPIException(f"Could not add data to process entry: {e}")
 
