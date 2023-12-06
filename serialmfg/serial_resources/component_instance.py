@@ -96,7 +96,13 @@ class ComponentInstances:
         client = APIClient() 
         # TODO: debug logging
         #print(f"Getting component instance: {identifier}")
-        return ComponentInstance(client.make_api_request(f"/components/instances/{identifier}", "GET"))
+        params = {"identifier": identifier}
+        returned_instances = client.make_api_request("/components/instances", "GET", params=params)
+        if len(returned_instances) == 0:
+            raise SerialAPIException(f"Component instance with identifier {identifier} does not exist")
+        if len(returned_instances) > 1:
+            raise SerialAPIException(f"Multiple component instances with identifier {identifier} exist. Please contact Serial support.")
+        return ComponentInstance(returned_instances[0])
     
     @staticmethod
     def create(identifier, component_name):
