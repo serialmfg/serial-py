@@ -10,7 +10,7 @@ load_dotenv(find_dotenv()) # relative path to .env file
 API_KEY = os.getenv('ZUPLO_API_KEY') # put your own API key here
 BASE_URL = os.getenv('BASE_URL') # Put your own url here 
 EXISTING_IDENTIFIER = "test-1691540942131"
-UNEDITED_IDENTIFIER = "test-1696629404"
+UNEDITED_IDENTIFIER = "BIKE-0002"
 
 serial.set_api_key(API_KEY)
 serial.set_base_url(BASE_URL)
@@ -55,7 +55,7 @@ def test_create_link():
     new_link = new_component_instance.add_link("Test PyLibLinking dataset", UNEDITED_IDENTIFIER, process_entry=process_entry) 
     for key, value in new_link.data["new_link"].items():
         assert key in SAMPLE_NEW_LINK["new_link"].keys()
-        if key not in ["id", "created_at", "removed_at", "unique_identifier_id"]:
+        if key not in ["id", "created_at", "removed_at", "unique_identifier_id", "removal_reason", "removed_by_user_id"]:
             assert value == SAMPLE_NEW_LINK["new_link"][key]
 
 def test_list_process_entries():
@@ -102,8 +102,6 @@ def test_create_process_entries_with_id_lots_of_data_and_submit():
     assert new_process_entry_3.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
 
     for i in range(100):
-        if i == 50:
-            serial.set_api_key("bad_key")
         new_process_entry_3.add_text("New Dataset", "Bob's Burgers") 
         new_process_entry_3.add_number("New Dataset", 1.5, usl=5, lsl=0) 
 

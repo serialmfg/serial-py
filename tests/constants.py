@@ -1,7 +1,9 @@
 EXISTING_IDENTIFIER_DATA = {
     'completed_at': None,
+    'company_id': '0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25',
     'component': {
         'component_type': 'SN',
+        'company_id': '0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25',
         'created_at': '2023-07-27T20:57:03.492568+00:00',
         'id': '96f59fb6-a801-4cc6-9b50-17e21f181482',
         'is_active': True,
@@ -22,6 +24,7 @@ EXISTING_IDENTIFIER_DATA = {
     'work_order_id': None}
 
 NEW_IDENTIFIER_SAMPLE_DATA = {'completed_at': None,
+    'company_id': '0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25',
     'component_id': '96f59fb6-a801-4cc6-9b50-17e21f181482',
     'created_at': '2023-10-06T19:42:14.716444+00:00',
     'id': 'b0a39740-97fe-48bd-b587-7d9b38af479f',
@@ -34,25 +37,30 @@ NEW_IDENTIFIER_SAMPLE_DATA = {'completed_at': None,
 
 SAMPLE_NEW_LINK = {"broken_links":
                     [
-                        {"id":"6cb414b7-3d11-4427-b49e-84f5abc0e51b",
-                         "company_id":"0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25",
-                         "unique_identifier_id":"1e8b0529-f2d1-4eac-9acf-b394497c8600",
-                         "has_child_of_id":"95db48e1-99ad-4e35-a86b-fa0beca5f313",
-                         "process_entry_id":"1963ff32-cfb8-48a9-9a6d-41c7bfdcb67c",
-                         "is_active":False,
-                         "dataset_id":"42eb0ebc-2d28-48a7-ac33-2f8a63bc45cf",
-                         "created_at":"2023-10-04T18:37:39.331615+00:00",
-                         "removed_at":"2023-10-06T20:35:28.850196+00:00"}
+                        {
+                        "id":"6cb414b7-3d11-4427-b49e-84f5abc0e51b",
+                        "company_id":"0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25",
+                        "unique_identifier_id":"1e8b0529-f2d1-4eac-9acf-b394497c8600",
+                        "has_child_of_id":"95db48e1-99ad-4e35-a86b-fa0beca5f313",
+                        "process_entry_id":"1963ff32-cfb8-48a9-9a6d-41c7bfdcb67c",
+                        "is_active":False,
+                        "dataset_id":"42eb0ebc-2d28-48a7-ac33-2f8a63bc45cf",
+                        "created_at":"2023-10-04T18:37:39.331615+00:00",
+                        "removed_by_user_id": None,
+                        "removal_reason": None,
+                        "removed_at":"2023-10-06T20:35:28.850196+00:00"}
                     ],
                    "new_link":{
-                       "id":"10fe089f-2cd2-4e69-b7d2-fc7f4574b608",
-                       "unique_identifier_id":"465436b1-b777-47f9-9e49-53aff51a0dee",
-                       "has_child_of_id":"f489336d-632b-4d8b-967d-3d36200e8026",
-                       "process_entry_id":"1963ff32-cfb8-48a9-9a6d-41c7bfdcb67c",
-                       "is_active": True,
-                       "dataset_id":"42eb0ebc-2d28-48a7-ac33-2f8a63bc45cf",
-                       "created_at":"2023-10-06T20:35:28.94124+00:00",
-                       "removed_at":"null"}
+                        "id":"10fe089f-2cd2-4e69-b7d2-fc7f4574b608",
+                        "unique_identifier_id":"465436b1-b777-47f9-9e49-53aff51a0dee",
+                        "has_child_of_id":"22834b08-bf16-4a4e-9d3f-f57dcab17ac8",
+                        "process_entry_id":"1963ff32-cfb8-48a9-9a6d-41c7bfdcb67c",
+                        "is_active": True,
+                        "dataset_id":"42eb0ebc-2d28-48a7-ac33-2f8a63bc45cf",
+                        "created_at":"2023-10-06T20:35:28.94124+00:00",
+                        "removed_by_user_id": None,
+                        "removal_reason": None,
+                        "removed_at":"null"}
                    }
 SAMPLE_TEXT_DATA = {'created_at': '2023-10-06T21:26:25.830419+00:00',
                     'dataset_id': '4764ac60-eeab-48ed-a86c-9dd38cc703c3',
