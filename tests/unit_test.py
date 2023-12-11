@@ -88,7 +88,7 @@ def test_create_process_entries_with_id_and_submit():
     existing_process_entry.add_text("New Dataset", "Bob's Burgers") 
     existing_process_entry.add_number("New Dataset", 1.5, usl=5, lsl=0) 
 
-    existing_process_entry.add_file("New Dataset", "/Users/clarke/repos/serial-py/tests/test.txt")
+    existing_process_entry.add_file("New Dataset", "test.txt")
 
     existing_process_entry.add_boolean("Pass Fail Criteria", True, False)
     existing_process_entry.submit(cycle_time=50, is_pass=True)
@@ -105,7 +105,7 @@ def test_create_process_entries_with_id_lots_of_data_and_submit():
         new_process_entry_3.add_text("New Dataset", "Bob's Burgers") 
         new_process_entry_3.add_number("New Dataset", 1.5, usl=5, lsl=0) 
 
-        new_process_entry_3.add_file("New Dataset", "/Users/clarke/repos/serial-py/tests/test.txt")
+        new_process_entry_3.add_file("New Dataset", "test.txt")
         new_process_entry_3.add_boolean("Pass Fail Criteria", True, False)
 
     new_process_entry_3.submit(cycle_time=50, is_pass=True)
@@ -126,7 +126,7 @@ def test_process_entry_submit_handles_failures():
         new_process_entry_3.add_text("New Dataset", "Bob's Burgers") 
         new_process_entry_3.add_number("New Dataset", 1.5, usl=5, lsl=0) 
 
-        new_process_entry_3.add_file("New Dataset", "/Users/clarke/repos/serial-py/tests/test.txt")
+        new_process_entry_3.add_file("New Dataset", "test.txt")
 
         new_process_entry_3.add_boolean("Pass Fail Criteria", True, False)
 
