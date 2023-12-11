@@ -6,7 +6,6 @@ brotlicffi==1.1.0.0
 ConfigParser==6.0.0
 contextlib2==21.6.0
 cryptography==41.0.7
-Cython==3.0.6
 dl==0.1.0
 docutils==0.20.1
 exceptiongroup==1.2.0
