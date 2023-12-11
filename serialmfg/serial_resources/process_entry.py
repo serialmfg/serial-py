@@ -9,6 +9,7 @@ from ..exceptions import SerialAPIException
 from .. import config
 from .dataset import Datasets 
 from .component_instance import ComponentInstances
+from ..utils.time_formatting import is_iso_timestamp
 
 class ProcessEntry:
     """
@@ -436,7 +437,7 @@ class ProcessEntries:
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None, timestamp=None):
         """
         Creates a process entry
 
@@ -446,6 +447,7 @@ class ProcessEntries:
         - component_instance_id?: Component instance id (is overriden by component_instance)
         - component_instance_identifier?: Component instance identifier (is overriden by component_instance & component_instance_id)
         - station_id?: Optional station id to override the default station id
+        - timestamp?: Optional timestamp to override the default timestamp. Must be in ISO 8601 format
 
         Returns:
         - A process entry Python object
@@ -462,6 +464,10 @@ class ProcessEntries:
             data["station_id"] = station_id
         elif config.station_id:
             data["station_id"] = config.station_id
+        if timestamp:
+            if not is_iso_timestamp(timestamp):
+                raise Exception("Timestamp must be in ISO 8601 format")
+            data["timestamp"] = timestamp
         entry = client.make_api_request("/processes/entries", "POST", data=data)
         return ProcessEntry(entry)
 
