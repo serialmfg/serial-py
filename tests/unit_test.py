@@ -68,10 +68,11 @@ def test_get_process_entries():
     assert existing_process_entry.id == "e6ff9f24-8435-4ed7-9b4a-0f4b860ac1fc"
 
 def test_create_process_entries():
-    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance=existing_component_instance) 
+    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance=existing_component_instance, timestamp="2023-03-21T10:45:00") 
 
     assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
     assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
+    assert new_process_entry_2.data["timestamp"] == "2023-03-21T10:45:00+00:00"
 
 def test_create_process_entries_with_identifier():
     new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance_identifier=EXISTING_IDENTIFIER) 
