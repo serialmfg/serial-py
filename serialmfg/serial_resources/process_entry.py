@@ -437,7 +437,7 @@ class ProcessEntries:
         return ProcessEntry(entry)
 
     @staticmethod
-    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None, timestamp=None):
+    def create(process_id, component_instance=None, component_instance_id=None, component_instance_identifier=None, station_id=None, operator_id=None, timestamp=None):
         """
         Creates a process entry
 
@@ -462,6 +462,8 @@ class ProcessEntries:
         data = {"component_instance_id": component_instance_id, "process_id": process_id}
         if station_id:
             data["station_id"] = station_id
+        elif operator_id:
+            data["operator_id"] = operator_id
         elif config.station_id:
             data["station_id"] = config.station_id
         if timestamp:
