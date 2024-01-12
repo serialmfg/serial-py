@@ -105,13 +105,14 @@ class ComponentInstances:
         return ComponentInstance(returned_instances[0])
     
     @staticmethod
-    def create(identifier, component_name):
+    def create(identifier, component_name, part_number_id=None):
         """
         Creates a component instance
         
         Args:
         - identifier: Component's user facing identifier
         - component_name: User facing name for the component
+        - part_number_id?: Part number id for the component instance
             
         Returns:
         - A component instance, as defined at 
@@ -134,6 +135,8 @@ class ComponentInstances:
                 "component_id": component_id,
                 "identifier": identifier,
                 }
+        if part_number_id:
+            data["part_number_id"] = part_number_id
         return ComponentInstance(client.make_api_request(f"/components/instances", "PUT", data=data)) 
 
     @staticmethod
