@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="serialmfg",
-    version="1.1.16",
+    version="1.1.17",
     packages=find_packages(),
     description="This module provides a simple Python interface to interact with the Serial API. It allows you to easily perform common operations such as uploading process data, initializing identifiers, and checking the server connection.",
     long_description=open('README.md').read(),
