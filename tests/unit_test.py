@@ -4,7 +4,7 @@ import os
 sys.path.append('../serial')
 import time
 import serialmfg as serial
-from .constants import NEW_IDENTIFIER_SAMPLE_DATA, NEW_IDENTIFIER_SAMPLE_DATA_W_PN_2, NEW_IDENTIFIER_SAMPLE_DATA_W_PN_3, NEW_IDENTIFIER_SAMPLE_DATA_W_PN_4, SAMPLE_NEW_LINK, EXISTING_IDENTIFIER_DATA, SAMPLE_TEXT_DATA, SAMPLE_NUMBER_DATA, SAMPLE_IMAGE_DATA, SAMPLE_BOOLEAN_DATA, SAMPLE_ENTRY_DATA, SAMPLE_DATASET_DATA, SAMPLE_FILE_DATA
+from .constants import NEW_IDENTIFIER_SAMPLE_DATA, NEW_IDENTIFIER_SAMPLE_DATA_W_PN, SAMPLE_NEW_LINK, EXISTING_IDENTIFIER_DATA, SAMPLE_TEXT_DATA, SAMPLE_NUMBER_DATA, SAMPLE_IMAGE_DATA, SAMPLE_BOOLEAN_DATA, SAMPLE_ENTRY_DATA, SAMPLE_DATASET_DATA, SAMPLE_FILE_DATA
 
 load_dotenv(find_dotenv()) # relative path to .env file
 API_KEY = os.getenv('ZUPLO_API_KEY') # put your own API key here
@@ -41,22 +41,22 @@ def test_create_instance():
         if key not in ["id", "identifier", "created_at", "last_updated_at"]:
             assert value == NEW_IDENTIFIER_SAMPLE_DATA[key]
         
-def test_create_instance_w_pn_id():
-    new_component_instance_2 = serial.ComponentInstances.create(f"test-{int(time.time())}-2", component_name="Wheel", part_number_id="3feec6d9-f2e3-438a-b909-52066ae8f947")
-    new_component_instance_3 = serial.ComponentInstances.create(f"test-{int(time.time())}-3", component_name="Wheel", part_number_id="6a04dd44-e2eb-4bba-93c6-3f5a4cc63968")
-    new_component_instance_4 = serial.ComponentInstances.create(f"test-{int(time.time())}-4", component_name="Wheel", part_number_id="e1e4d3ff-7fcb-4890-886a-9a5fcd494bfe")
+def test_create_instance_w_pn():
+    new_component_instance_2 = serial.ComponentInstances.create(f"test-{int(time.time())}-2", component_name="Wheel", part_number="MT-50")
+    new_component_instance_3 = serial.ComponentInstances.create(f"test-{int(time.time())}-4", component_name="Wheel", part_number="MT-55")
+    new_component_instance_4 = serial.ComponentInstances.create(f"test-{int(time.time())}-5", component_name="Wheel", part_number=f"MT-55-{int(time.time())}")
     for key, value in new_component_instance_2.data.items():
-        assert key in NEW_IDENTIFIER_SAMPLE_DATA_W_PN_2.keys()
+        assert key in NEW_IDENTIFIER_SAMPLE_DATA_W_PN.keys()
         if key not in ["id", "identifier", "created_at", "last_updated_at"]:
-            assert value == NEW_IDENTIFIER_SAMPLE_DATA_W_PN_2[key]
+            assert value == NEW_IDENTIFIER_SAMPLE_DATA_W_PN[key]
     for key, value in new_component_instance_3.data.items():
-        assert key in NEW_IDENTIFIER_SAMPLE_DATA_W_PN_3.keys()
-        if key not in ["id", "identifier", "created_at", "last_updated_at"]:
-            assert value == NEW_IDENTIFIER_SAMPLE_DATA_W_PN_3[key]
+        assert key in NEW_IDENTIFIER_SAMPLE_DATA_W_PN.keys()
+        if key not in ["id", "identifier", "created_at", "last_updated_at", "part_number_id"]:
+            assert value == NEW_IDENTIFIER_SAMPLE_DATA_W_PN[key]
     for key, value in new_component_instance_4.data.items():
-        assert key in NEW_IDENTIFIER_SAMPLE_DATA_W_PN_4.keys()
-        if key not in ["id", "identifier", "created_at", "last_updated_at"]:
-            assert value == NEW_IDENTIFIER_SAMPLE_DATA_W_PN_4[key]
+        assert key in NEW_IDENTIFIER_SAMPLE_DATA_W_PN.keys()
+        if key not in ["id", "identifier", "created_at", "last_updated_at", "part_number_id"]:
+            assert value == NEW_IDENTIFIER_SAMPLE_DATA_W_PN[key]
 
 def test_list_instances():
     component_instance_list = serial.ComponentInstances.list({"status": "DEFECTIVE"})

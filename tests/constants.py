@@ -36,12 +36,7 @@ NEW_IDENTIFIER_SAMPLE_DATA = {'completed_at': None,
     'status': 'PLANNED',
     'work_order_id': None}
 
-NEW_IDENTIFIER_SAMPLE_DATA_W_PN_2 = {'id': 'a525ef0f-e9f6-4437-88e4-4d6760e8d235', 'identifier': 'test-1705089750', 'component_id': '15e03774-9b50-4c29-9b92-e62547333f92', 'created_at': '2024-01-12T20:02:30.378169+00:00', 'status': 'PLANNED', 'last_updated_at': '2024-01-12T20:02:30.378169+00:00', 'completed_at': None, 'part_number_id': '3feec6d9-f2e3-438a-b909-52066ae8f947', 'is_archived': False, 'work_order_id': None}
-
-NEW_IDENTIFIER_SAMPLE_DATA_W_PN_3 = {'id': 'c96c5e4e-5092-42cb-a3c4-83bb1d5fd7c3', 'identifier': 'test-1705090014-3', 'component_id': '15e03774-9b50-4c29-9b92-e62547333f92', 'created_at': '2024-01-12T20:06:54.93671+00:00', 'status': 'PLANNED', 'last_updated_at': '2024-01-12T20:06:54.93671+00:00', 'completed_at': None, 'part_number_id': '6a04dd44-e2eb-4bba-93c6-3f5a4cc63968', 'is_archived': False, 'work_order_id': None}
-
-NEW_IDENTIFIER_SAMPLE_DATA_W_PN_4 = {'id': 'd4c6e07e-8b8e-480e-b638-e1a8143eaf76', 'identifier': 'test-1705090015-4', 'component_id': '15e03774-9b50-4c29-9b92-e62547333f92', 'created_at': '2024-01-12T20:06:55.319278+00:00', 'status': 'PLANNED', 'last_updated_at': '2024-01-12T20:06:55.319278+00:00', 'completed_at': None, 'part_number_id': 'e1e4d3ff-7fcb-4890-886a-9a5fcd494bfe', 'is_archived': False, 'work_order_id': None}
-
+NEW_IDENTIFIER_SAMPLE_DATA_W_PN = {'id': 'a525ef0f-e9f6-4437-88e4-4d6760e8d235', 'identifier': 'test-1705089750', 'component_id': '15e03774-9b50-4c29-9b92-e62547333f92', 'created_at': '2024-01-12T20:02:30.378169+00:00', 'status': 'PLANNED', 'last_updated_at': '2024-01-12T20:02:30.378169+00:00', 'completed_at': None, 'part_number_id': '3feec6d9-f2e3-438a-b909-52066ae8f947', 'is_archived': False, 'work_order_id': None}
 
 SAMPLE_NEW_LINK = {"broken_links":
                     [
