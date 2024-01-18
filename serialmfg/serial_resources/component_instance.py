@@ -4,6 +4,7 @@ This file contains the ComponentInstance class, which represents a component ins
 from ..api_client import APIClient
 from ..exceptions import SerialAPIException
 from .component_instance_link import ComponentInstanceLink
+from .part_number import PartNumbers
 
 class ComponentInstance:
     """
@@ -105,14 +106,14 @@ class ComponentInstances:
         return ComponentInstance(returned_instances[0])
     
     @staticmethod
-    def create(identifier, component_name, part_number_id=None):
+    def create(identifier, component_name, part_number=None):
         """
         Creates a component instance
         
         Args:
         - identifier: Component's user facing identifier
         - component_name: User facing name for the component
-        - part_number_id?: Part number id for the component instance
+        - part_number?: Part number for the component instance
             
         Returns:
         - A component instance, as defined at 
@@ -125,18 +126,20 @@ class ComponentInstances:
         component_name_params = {
                 "name" : component_name,
                 }
-        component_id = client.make_api_request("/components",
-                                                     "GET",
-                                                     params=component_name_params)
-        if len(component_id) == 0:
+        component = client.make_api_request(
+            "/components",
+            "GET",
+            params=component_name_params)
+        if len(component) == 0:
             raise SerialAPIException(f"Component with name {component_name} does not exist")
-        component_id = component_id[0]["id"]
+        component_id = component[0]["id"]
         data = {
                 "component_id": component_id,
                 "identifier": identifier,
                 }
-        if part_number_id:
-            data["part_number_id"] = part_number_id
+        if part_number:
+            part_number = PartNumbers.get_or_create_part_number(part_number, component_id)
+            data["part_number_id"] = part_number.data["id"]
         return ComponentInstance(client.make_api_request(f"/components/instances", "PUT", data=data)) 
 
     @staticmethod
