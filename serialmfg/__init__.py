@@ -16,6 +16,7 @@ from .process import Process
 from .serial_resources.component_instance import ComponentInstances
 from .serial_resources.process_entry import ProcessEntries
 from .serial_resources.dataset import Datasets
+from .serial_resources.operator import Operators
 from . import config
 from .exceptions import SerialAPIException
 
