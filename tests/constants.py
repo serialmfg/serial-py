@@ -139,4 +139,5 @@ SAMPLE_DATASET_DATA = {'child_component_id': None,
             'unit': '',
             'is_active': True,
             'usl': None,
+            'schema_id': None,
             'prior_values': []} 

@@ -166,3 +166,18 @@ def test_create_datasets():
     for key, value in dataset.data.items():
         assert key in SAMPLE_DATASET_DATA.keys()
 
+def test_create_process_entry_with_operator():
+    existing_operator = serial.Operators.get(first_name="Amy", last_name="Admin")
+    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance=existing_component_instance, operator=existing_operator) 
+
+    assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
+    assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
+    assert new_process_entry_2.data["operator_id"] == "b3a87089-c5a4-4b5a-846a-dbafc996781c"
+
+def test_create_process_entry_with_operator_pin():
+    existing_operator = serial.Operators.get(pin="0000")
+    new_process_entry_2 = serial.ProcessEntries.create(process_id="51718ea4-a274-4455-bde3-e4216e1ecd96", component_instance=existing_component_instance, operator=existing_operator)
+
+    assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
+    assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
+    assert new_process_entry_2.data["operator_id"] == "3f86851e-f7cd-4a29-882c-370409406791"
