@@ -106,7 +106,7 @@ class ProcessEntry:
         value = text_data['value']
         expected_value = text_data.get('expected_value')
 
-        dataset = Datasets.get_or_create_dataset(dataset_name, "TEXT", self.process_id)
+        dataset, status = Datasets.get_or_create_dataset(dataset_name, "TEXT", self.process_id)
 
         data = {
             "type": "TEXT",
@@ -171,7 +171,7 @@ class ProcessEntry:
         unit = number_data.get('unit')
         extra_params = {'unit': unit, 'usl': usl, 'lsl': lsl}
             
-        dataset = Datasets.get_or_create_dataset(dataset_name, "NUMERICAL", self.process_id, extra_params)
+        dataset, status = Datasets.get_or_create_dataset(dataset_name, "NUMERICAL", self.process_id, extra_params)
         
         data = {
             "type": "NUMERICAL",
@@ -262,7 +262,7 @@ class ProcessEntry:
         storage_object = self.client.make_api_request("/files", "POST", files=files)
         if mimetype.startswith("image"):
             dataset_type = "IMAGE"
-        dataset = Datasets.get_or_create_dataset(dataset_name, dataset_type, self.process_id) 
+        dataset, status = Datasets.get_or_create_dataset(dataset_name, dataset_type, self.process_id) 
         data = {"type": dataset_type, "dataset_id": dataset.dataset_id, "file_id": storage_object["name"], "file_name": file_name}
         return self.client.make_api_request(f"/processes/entries/{self.id}", "PUT", data=data)
 
@@ -309,7 +309,7 @@ class ProcessEntry:
         value = boolean_data['value']
         expected_value = boolean_data['expected_value']
 
-        dataset = Datasets.get_or_create_dataset(dataset_name, "BOOLEAN", self.process_id)
+        dataset, status = Datasets.get_or_create_dataset(dataset_name, "BOOLEAN", self.process_id)
         
         data = {
             "type": "BOOLEAN",
@@ -361,6 +361,7 @@ class ProcessEntry:
                 except Exception as e:
                     # Handle exceptions
                     print(f"An error occurred: {e}")
+                    raise SerialAPIException(f"An error occurred: {e}")
 
     def _process_single_link_data(self, link_data):
         # The code that processes a single link data entry
@@ -368,8 +369,20 @@ class ProcessEntry:
         child_identifier = link_data['child_identifier']
         break_prior_links = link_data['break_prior_links']
 
-        child_component_instance_id = ComponentInstances.get(child_identifier).data["id"]
-        link_dataset = Datasets.get(dataset_name, "LINK", self.process_id)
+        child_component_instance = ComponentInstances.get(child_identifier).data
+
+        child_component_instance_id = child_component_instance["id"]
+        link_dataset, status = Datasets.get_or_create_dataset(dataset_name, "LINK", self.process_id)
+
+        if status == "created":
+            parent_component_instance = ComponentInstances.get(id=self.component_instance_id).data
+            new_component_link_data = {
+                'child_component_id': child_component_instance["component_id"],
+                'parent_component_id': parent_component_instance["component_id"],
+                'dataset_id': link_dataset.dataset_id,
+                'process_id': self.process_id
+            }
+            self.client.make_api_request("/components/links", "PUT", data=new_component_link_data)
 
         process_entry_id = self.id
         data = {

@@ -1,4 +1,6 @@
 import sys
+import string
+import random
 from dotenv import find_dotenv, load_dotenv
 import os
 sys.path.append('../serial')
@@ -109,6 +111,7 @@ def test_create_process_entries_with_id_and_submit():
     existing_process_entry.add_file("New Dataset", "test.txt")
 
     existing_process_entry.add_boolean("Pass Fail Criteria", True, False)
+    existing_process_entry.add_link(''.join(random.choices(string.ascii_uppercase + string.digits, k=10)), UNEDITED_IDENTIFIER)
     existing_process_entry.submit(cycle_time=50, is_pass=True)
 
     assert existing_process_entry.data["cycle_time"] == 50
@@ -181,3 +184,4 @@ def test_create_process_entry_with_operator_pin():
     assert new_process_entry_2.process_id == "51718ea4-a274-4455-bde3-e4216e1ecd96"
     assert new_process_entry_2.data["unique_identifier_id"] == "95db48e1-99ad-4e35-a86b-fa0beca5f313"
     assert new_process_entry_2.data["operator_id"] == "3f86851e-f7cd-4a29-882c-370409406791"
+

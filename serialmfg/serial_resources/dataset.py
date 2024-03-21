@@ -57,7 +57,7 @@ class Datasets:
             query_params.update(extra_params)
         # TODO: debug logging
         #print(f"Creating dataset with type {data_type}: {name}")
-        return Dataset(client.make_api_request("/datasets", "PUT", data=query_params))
+        return Dataset(client.make_api_request("/datasets", "PUT", data=query_params))    
 
     @staticmethod
     def get_or_create_dataset(name, data_type, process_id, extra_params=None):
@@ -74,9 +74,9 @@ class Datasets:
         - A dataset Python object 
         """
         try:
-            return Datasets.get(name, data_type, process_id)
+            return Datasets.get(name, data_type, process_id), "found"
         except DatasetNotFound as e:
-            return Datasets.create(name, data_type, process_id, extra_params)
+            return Datasets.create(name, data_type, process_id, extra_params), "created"
 
 class Dataset:
     """
