@@ -84,7 +84,7 @@ class ComponentInstances:
     A class for component instance data methods
     """
     @staticmethod
-    def get(identifier):
+    def get(identifier=None, id=None):
         """
         Gets a component instance, if it exists
         
@@ -97,7 +97,11 @@ class ComponentInstances:
         client = APIClient() 
         # TODO: debug logging
         #print(f"Getting component instance: {identifier}")
-        params = {"identifier": identifier}
+        params = {}
+        if identifier:
+            params["identifier"] = identifier
+        if id:
+            params["id"] = id
         returned_instances = client.make_api_request("/components/instances", "GET", params=params)
         if len(returned_instances) == 0:
             raise SerialAPIException(f"Component instance with identifier {identifier} does not exist")
