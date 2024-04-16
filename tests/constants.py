@@ -21,7 +21,9 @@ EXISTING_IDENTIFIER_DATA = {
     'part_number_id': None,
     'status': 'WIP',
     'work_order': None,
-    'work_order_id': None}
+    'work_order_id': None,
+    'latitude': None,
+    'longitude': None}
 
 
 NEW_IDENTIFIER_SAMPLE_DATA = {'completed_at': None,
@@ -34,9 +36,24 @@ NEW_IDENTIFIER_SAMPLE_DATA = {'completed_at': None,
     'last_updated_at': '2023-10-06T19:42:14.716444+00:00',
     'part_number_id': None,
     'status': 'PLANNED',
-    'work_order_id': None}
+    'work_order_id': None,
+    'latitude': None,
+    'longitude': None}
 
-NEW_IDENTIFIER_SAMPLE_DATA_W_PN = {'id': 'a525ef0f-e9f6-4437-88e4-4d6760e8d235', 'identifier': 'test-1705089750', 'component_id': '15e03774-9b50-4c29-9b92-e62547333f92', 'created_at': '2024-01-12T20:02:30.378169+00:00', 'status': 'PLANNED', 'last_updated_at': '2024-01-12T20:02:30.378169+00:00', 'completed_at': None, 'part_number_id': '3feec6d9-f2e3-438a-b909-52066ae8f947', 'is_archived': False, 'work_order_id': None}
+NEW_IDENTIFIER_SAMPLE_DATA_W_PN = {
+    'id': 'a525ef0f-e9f6-4437-88e4-4d6760e8d235', 
+    'identifier': 'test-1705089750', 
+    'component_id': '15e03774-9b50-4c29-9b92-e62547333f92', 
+    'created_at': '2024-01-12T20:02:30.378169+00:00', 
+    'status': 'PLANNED', 
+    'last_updated_at': '2024-01-12T20:02:30.378169+00:00', 
+    'completed_at': None, 
+    'part_number_id': '3feec6d9-f2e3-438a-b909-52066ae8f947', 
+    'is_archived': False, 
+    'work_order_id': None,
+    'company_id': '0a9f1a55-5d27-4774-b9d8-3ba2e9dd2a25',
+    'latitude': None,
+    'longitude': None}
 
 SAMPLE_NEW_LINK = {"broken_links":
                     [
