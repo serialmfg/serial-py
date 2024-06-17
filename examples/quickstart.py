@@ -15,8 +15,10 @@ my_process_entry = serial.ProcessEntries.create(
     component_instance_identifier='ABC-1234'
 )
 
-# Adding data to a process entry
+# Adding text data to a process entry
 my_process_entry.add_text(dataset_name="Foo", value="Bar")
+
+# Adding numerical data to a process entry
 my_process_entry.add_number(dataset_name="Pi Approx", value=3.141, lsl=3.1, usl=3.2)
 
 # Submitting a process entry
