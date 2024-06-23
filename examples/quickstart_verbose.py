@@ -20,12 +20,22 @@ defective_components = serial.ComponentInstances.list({"status": "DEFECTIVE"})
 # Creating a process entry
 my_process_entry = serial.ProcessEntries.create(process_id="process-id", component_instance_identifier="ABC-1234") 
 
-# Adding data to a process entry
+# Adding text data to a process entry
 my_process_entry.add_text(dataset_name="Foo", value="bar")
+
+# Adding numerical data to a process entry
 my_process_entry.add_number(dataset_name="Pi Approx", value=3.141, lsl=3.1, usl=3.2)
+
+# Adding boolean data to a process entry
 my_process_entry.add_boolean(dataset_name="Pass Fail Criteria", value=True, expected_value=True)
+
+# Adding file data to a process entry
 my_process_entry.add_file(dataset_name="Oven Temperatures", path="/Users/me/Downloads/oven-temp.csv", file_name="oven-temp-todays-date.csv") 
+
+# Adding image data to a process entry
 my_process_entry.add_image(dataset_name="Cat Pictures", path="/Users/me/Documents/my-cat.png", file_name="jerry.png") 
+
+# Adding link data to a process entry
 my_process_entry.add_link(dataset_name="Link Child 1", child_identifier="XYZ-5678")
 
 # Submitting a process entry
